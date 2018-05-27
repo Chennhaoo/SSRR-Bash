@@ -8,16 +8,15 @@ SSRR服务端基于`https://github.com/shadowsocksrr/shadowsocksr`     akkariiin
     xsalsa20
     xchacha20
 
+
 增加协议：
 -----
 
     auth_chain_c
-
     auth_chain_d
-
     auth_chain_e
-
     auth_chain_f
+
 
 使用方法
 ----
