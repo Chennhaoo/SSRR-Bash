@@ -12,7 +12,8 @@ auth_chain_d
 auth_chain_e
 auth_chain_f
 
-
+使用方法
+wget https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/ssrmu.sh && chmod +x ssrrmu.sh && bash ssrrmu.sh
 
 
 
