@@ -1,5 +1,5 @@
 基于`https://github.com/ToyoDAdoubi`源码修改，参考了`GitHub@hybtoy`    
-SSRR服务端基于`https://github.com/shadowsocksrr/shadowsocksr`     akkariiin/dev 分支
+SSRR服务端基于`https://github.com/shadowsocksrr/shadowsocksr`     akkariiin/dev 分支<br>
         此版本基于doub大佬1.0.25版本修改，脚本有空才升级
 
 增加加密：
