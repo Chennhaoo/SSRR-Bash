@@ -1,5 +1,5 @@
-基于`https://github.com/ToyoDAdoubi`源码修改，参考了`GitHub@hybtoy`
-SSRR服务端基于`https://github.com/shadowsocksrr/shadowsocksr`  akkariiin/dev 分支
+基于`https://github.com/ToyoDAdoubi`源码修改，参考了`GitHub@hybtoy`    
+SSRR服务端基于`https://github.com/shadowsocksrr/shadowsocksr`     akkariiin/dev 分支 
 此版本基于doub大佬1.0.25版本修改，脚本有空才升级
 
 增加加密：
@@ -20,8 +20,6 @@ SSRR服务端基于`https://github.com/shadowsocksrr/shadowsocksr`  akkariiin/de
     auth_chain_f
 
 使用方法
+----
 
     wget https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/ssrmu.sh && chmod +x ssrrmu.sh && bash ssrrmu.sh
-
-
-
