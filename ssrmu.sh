@@ -25,6 +25,7 @@ Server_Speeder_file="/serverspeeder/bin/serverSpeeder.sh"
 LotServer_file="/appex/bin/serverSpeeder.sh"
 BBR_file="${file}/bbr.sh"
 jq_file="${ssr_folder}/jq"
+SSH_file="${file}/ssh_port.sh"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
@@ -1644,7 +1645,12 @@ Other_functions(){
   ${Green_font_prefix}6.${Font_color_suffix} 切换 ShadowsocksR日志输出模式
   —— 说明：SSR默认只输出错误日志，此项可切换为输出详细的访问日志。
   ${Green_font_prefix}7.${Font_color_suffix} 监控 ShadowsocksR服务端运行状态
-  —— 说明：该功能适合于SSR服务端经常进程结束，启动该功能后会每分钟检测一次，当进程不存在则自动启动SSR服务端。" && echo
+  —— 说明：该功能适合于SSR服务端经常进程结束，启动该功能后会每分钟检测一次，当进程不存在则自动启动SSR服务端。
+————————————
+  ${Green_font_prefix}8.${Font_color_suffix} 更新软件源
+  ${Green_font_prefix}9.${Font_color_suffix} 更新软件 （谨慎操作）
+  ${Tip} 此项仅支持Debian/Ubuntu系统 
+  " && echo
 	stty erase '^H' && read -p "(默认: 取消):" other_num
 	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
 	if [[ ${other_num} == "1" ]]; then
@@ -1661,8 +1667,12 @@ Other_functions(){
 		Set_config_connect_verbose_info
 	elif [[ ${other_num} == "7" ]]; then
 		Set_crontab_monitor_ssr
+	elif [[ ${other_num} == "8" ]]; then
+		Update_YUAN	
+	elif [[ ${other_num} == "9" ]]; then
+		Update_SYS		
 	else
-		echo -e "${Error} 请输入正确的数字 [1-7]" && exit 1
+		echo -e "${Error} 请输入正确的数字 [1-9]" && exit 1
 	fi
 }
 # 封禁 BT PT SPAM
@@ -1772,6 +1782,44 @@ crontab_monitor_ssr_cron_stop(){
 		echo -e "${Info} ShadowsocksR服务端运行状态监控功能 停止成功 !"
 	fi
 }
+#修改SSH端口
+Install_SSHPOR(){
+	[[ ${release} = "centos" ]] && echo -e "${Error} 本脚本不支持 CentOS系统 !" && exit 1
+	if [[ ! -e ${SSH_file} ]]; then
+		echo -e "${Error} 没有发现 SSH修改端口脚本，开始下载..."
+		cd "${file}"
+		if ! wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssh_port.sh; then
+			echo -e "${Error} SSH 修改端口脚本下载失败 !" && exit 1
+		else
+			echo -e "${Info} SSH 修改端口脚本下载完成 !"
+			chmod +x ssh_port.sh
+		fi
+	fi
+	bash "${SSH_file}"
+}
+#更新软件源
+Update_YUAN(){
+    [[ ${release} = "centos" ]] && echo -e "${Error} 此命令只支持Debian/Ubuntu !" && exit 1
+	echo -e "${Info} 开始更新软件源...."
+	apt-get update
+	echo -e "${Info} 软件源更新完毕！"
+}
+#更新系统及软件
+Update_SYS(){
+    [[ ${release} = "centos" ]] && echo -e "${Error} 此命令只支持Debian/Ubuntu !" && exit 1
+	echo -e "${Info} 升级前请做好备份，如有内核升级请慎重考虑 ！"
+	echo "确定要升级系统软件吗 ？[y/N]" && echo
+	stty erase '^H' && read -p "(默认: n):" unyn
+	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
+	if [[ ${unyn} == [Yy] ]]; then
+		echo -e "${Info} 开始更新软件源...."
+		apt-get update
+		echo -e "${Info} 软件源更新完毕！"
+		echo -e "${Info} 开始更新软件，请手动确认是否升级 ！"
+		apt-get upgrade
+		echo -e "${Info} 更新软件及系统完毕，请稍后自行重启 ！"
+	fi
+}
 # 显示 菜单状态
 menu_status(){
 	if [[ -e ${ssr_folder} ]]; then
@@ -1813,10 +1861,11 @@ else
  ${Green_font_prefix}12.${Font_color_suffix} 重启 ShadowsocksRR
  ${Green_font_prefix}13.${Font_color_suffix} 查看 ShadowsocksRR 日志
 ————————————
- ${Green_font_prefix}14.${Font_color_suffix} 其他功能
+ ${Green_font_prefix}14.${Font_color_suffix} 修改SSH端口
+ ${Green_font_prefix}15.${Font_color_suffix} 其他功能
  "
 	menu_status
-	echo && stty erase '^H' && read -p "请输入数字 [1-14]：" num
+	echo && stty erase '^H' && read -p "请输入数字 [1-15]：" num
 case "$num" in
 	1)
 	Install_Libsodium
@@ -1858,8 +1907,11 @@ case "$num" in
 	View_Log
 	;;
 	14)
-	Other_functions
+	Install_SSHPOR
 	;;
+	15)
+	Other_functions
+	;;	
 	*)
 	echo -e "${Error} 请输入正确的数字 [1-14]"
 	;;
