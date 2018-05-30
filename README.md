@@ -23,3 +23,11 @@ SSRR服务端基于`https://github.com/shadowsocksrr/shadowsocksr`     akkariiin
 ----
 
     wget https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/ssrmu.sh && chmod +x ssrrmu.sh && bash ssrrmu.sh
+    
+
+其他：
+-----
+
+    1、添加doub的SSH端口修改脚本
+    2、添加debian/Ubuntu系统更新源和软件选项
+
