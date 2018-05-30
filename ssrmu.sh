@@ -10,7 +10,7 @@ export PATH
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="MOD_1.0.25"
+sh_ver="1.0.25"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -1785,16 +1785,27 @@ crontab_monitor_ssr_cron_stop(){
 #修改SSH端口
 Install_SSHPOR(){
 	[[ ${release} = "centos" ]] && echo -e "${Error} 本脚本不支持 CentOS系统 !" && exit 1
-	if [[ ! -e ${SSH_file} ]]; then
-		echo -e "${Error} 没有发现 SSH修改端口脚本，开始下载..."
-		cd "${file}"
-		if ! wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssh_port.sh; then
-			echo -e "${Error} SSH 修改端口脚本下载失败 !" && exit 1
+	echo -e "————————
+如果采用 ${Green_font_prefix} [保守修改]${Font_color_suffix} 选项，在修改完后新SSH链接正常 请链接后再次执行命令 ${Green_font_prefix} [bash /root/ssh_port.sh end]${Font_color_suffix} 以删除旧端口配置！
+当服务器存在外部防火墙时（如 阿里云、腾讯云、微软云、谷歌云、亚马逊云等），需要外部防火墙开放 新SSH端口TCP协议方可连接！
+————————" && echo
+	echo "确定更改SSH端口吗 ？[y/N]" && echo
+	stty erase '^H' && read -p "(默认: Y):" unyn 
+	if [[ ${unyn} == [Nn] ]]; then
+		echo && echo -e "${Info} 已取消..." && exit 1
 		else
-			echo -e "${Info} SSH 修改端口脚本下载完成 !"
-			chmod +x ssh_port.sh
+		if [[ ! -e ${SSH_file} ]]; then
+			echo -e "${Error} 没有发现 SSH修改端口脚本，开始下载..."
+			cd "${file}"
+			if ! wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssh_port.sh; then
+				echo -e "${Error} SSH 修改端口脚本下载失败 !" && exit 1
+			else
+				echo -e "${Info} SSH 修改端口脚本下载完成 !"
+				chmod +x ssh_port.sh
+			fi
 		fi
 	fi
+	echo -e "${Info} 开始修改..."
 	bash "${SSH_file}"
 }
 #更新软件源
@@ -1842,7 +1853,7 @@ if [[ "${action}" == "clearall" ]]; then
 elif [[ "${action}" == "monitor" ]]; then
 	crontab_monitor_ssr
 else
-	echo -e "  ShadowsocksRR MuJSON后端一键管理脚本 ${GREEN_font_prefix}[v${sh_ver}]${Font_color_suffix}
+	echo -e "  ShadowsocksRR MuJSON后端一键管理脚本 ${Green_font_prefix}[MOD_${sh_ver}]${Font_color_suffix}
   ---- GitHub@ChennHaoo  GitHub@hybtoy  GitHub@ToyoDAdoubi ----
 
   ${Green_font_prefix}1.${Font_color_suffix} 安装 libsodium(chacha20 xchacha20)
@@ -1913,7 +1924,7 @@ case "$num" in
 	Other_functions
 	;;	
 	*)
-	echo -e "${Error} 请输入正确的数字 [1-14]"
+	echo -e "${Error} 请输入正确的数字 [1-15]"
 	;;
 esac
 fi
