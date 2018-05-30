@@ -10,7 +10,7 @@ export PATH
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="1.0.25"
+sh_ver="MOD_1.0.25"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -1842,7 +1842,7 @@ if [[ "${action}" == "clearall" ]]; then
 elif [[ "${action}" == "monitor" ]]; then
 	crontab_monitor_ssr
 else
-	echo -e "  ShadowsocksRR MuJSON后端一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
+	echo -e "  ShadowsocksRR MuJSON后端一键管理脚本 ${GREEN_font_prefix}[v${sh_ver}]${Font_color_suffix}
   ---- GitHub@ChennHaoo  GitHub@hybtoy  GitHub@ToyoDAdoubi ----
 
   ${Green_font_prefix}1.${Font_color_suffix} 安装 libsodium(chacha20 xchacha20)
@@ -1861,7 +1861,7 @@ else
  ${Green_font_prefix}12.${Font_color_suffix} 重启 ShadowsocksRR
  ${Green_font_prefix}13.${Font_color_suffix} 查看 ShadowsocksRR 日志
 ————————————
- ${Green_font_prefix}14.${Font_color_suffix} 修改SSH端口
+ ${Green_font_prefix}14.${Font_color_suffix} 修改SSH端口 （如有BT面板，不建议在此修改）
  ${Green_font_prefix}15.${Font_color_suffix} 其他功能
  "
 	menu_status
