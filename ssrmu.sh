@@ -864,7 +864,7 @@ Download_SSR(){
 	#git config --global http.sslVerify false
 	echo -e "${Info} 准备安装git组件"
 	apt-get install git -y
-	git clone -b akkariiin/dev https://github.com/shadowsocksrr/shadowsocksr.git
+	git clone -b akkariiin/master https://github.com/shadowsocksrr/shadowsocksr.git
 	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR服务端 下载失败 !" && exit 1
 	#[[ ! -e "manyuser.zip" ]] && echo -e "${Error} ShadowsocksR服务端 压缩包 下载失败 !" && rm -rf manyuser.zip && exit 1
 	#unzip "manyuser.zip"
