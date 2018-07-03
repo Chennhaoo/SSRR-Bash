@@ -1647,8 +1647,9 @@ Other_functions(){
   ${Green_font_prefix}7.${Font_color_suffix} 监控 ShadowsocksR服务端运行状态
   —— 说明：该功能适合于SSR服务端经常进程结束，启动该功能后会每分钟检测一次，当进程不存在则自动启动SSR服务端。
 ————————————
-  ${Green_font_prefix}8.${Font_color_suffix} 更新软件源
-  ${Green_font_prefix}9.${Font_color_suffix} 更新软件 （谨慎操作）
+  ${Green_font_prefix}8.${Font_color_suffix} 修改系统时间
+  ${Green_font_prefix}9.${Font_color_suffix} 更新软件源
+  ${Green_font_prefix}10.${Font_color_suffix} 更新软件 （谨慎操作）
   ${Tip} 此项仅支持Debian/Ubuntu系统 
   " && echo
 	stty erase '^H' && read -p "(默认: 取消):" other_num
@@ -1668,11 +1669,13 @@ Other_functions(){
 	elif [[ ${other_num} == "7" ]]; then
 		Set_crontab_monitor_ssr
 	elif [[ ${other_num} == "8" ]]; then
-		Update_YUAN	
+		Sys_time		
 	elif [[ ${other_num} == "9" ]]; then
+		Update_YUAN	
+	elif [[ ${other_num} == "10" ]]; then
 		Update_SYS		
 	else
-		echo -e "${Error} 请输入正确的数字 [1-9]" && exit 1
+		echo -e "${Error} 请输入正确的数字 [1-10]" && exit 1
 	fi
 }
 # 封禁 BT PT SPAM
@@ -1807,6 +1810,13 @@ Install_SSHPOR(){
 	fi
 	echo -e "${Info} 开始修改..."
 	bash "${SSH_file}"
+}
+#修改系统时间
+Sys_time(){
+    [[ ${release} = "centos" ]] && echo -e "${Error} 此命令只支持Debian/Ubuntu !" && exit 1
+	echo -e "${Info} 开始修改系统时间...."
+	dpkg-reconfigure tzdata
+	echo -e "${Info} 系统时间修改完毕，请使用date命令查看！"
 }
 #更新软件源
 Update_YUAN(){
