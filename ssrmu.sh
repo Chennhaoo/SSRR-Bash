@@ -1649,8 +1649,9 @@ Other_functions(){
 ————————————
   ${Green_font_prefix}8.${Font_color_suffix} 修改系统时间
   ${Green_font_prefix}9.${Font_color_suffix} 更新软件源
-  ${Green_font_prefix}10.${Font_color_suffix} 更新软件 （谨慎操作）
-  ${Tip} 此项仅支持Debian/Ubuntu系统 
+  ${Tip} 仅支持Debian/Ubuntu系统
+————————————  
+  ${Green_font_prefix}10.${Font_color_suffix} 更新软件 （谨慎操作） 
   " && echo
 	stty erase '^H' && read -p "(默认: 取消):" other_num
 	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
@@ -1816,7 +1817,7 @@ Sys_time(){
     [[ ${release} = "centos" ]] && echo -e "${Error} 此命令只支持Debian/Ubuntu !" && exit 1
 	echo -e "${Info} 开始修改系统时间...."
 	dpkg-reconfigure tzdata
-	echo -e "${Info} 系统时间修改完毕，请使用date命令查看！"
+	echo -e "${Info} 系统时间修改完毕，请使用 date 命令查看！"
 }
 #更新软件源
 Update_YUAN(){
@@ -1827,17 +1828,21 @@ Update_YUAN(){
 }
 #更新系统及软件
 Update_SYS(){
-    [[ ${release} = "centos" ]] && echo -e "${Error} 此命令只支持Debian/Ubuntu !" && exit 1
 	echo -e "${Info} 升级前请做好备份，如有内核升级请慎重考虑 ！"
 	echo "确定要升级系统软件吗 ？[y/N]" && echo
 	stty erase '^H' && read -p "(默认: n):" unyn
 	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
-	if [[ ${unyn} == [Yy] ]]; then
-		echo -e "${Info} 开始更新软件源...."
-		apt-get update
-		echo -e "${Info} 软件源更新完毕！"
-		echo -e "${Info} 开始更新软件，请手动确认是否升级 ！"
-		apt-get upgrade
+	if [[ ${unyn} == [Yy] ]]; then		
+		if [[ ${release} == "centos" ]]; then
+			echo -e "${Info} 开始更新软件，请手动确认是否升级 ！"
+			yum update
+		else
+			echo -e "${Info} 开始更新软件源...."
+			apt-get update
+			echo -e "${Info} 软件源更新完毕！"
+			echo -e "${Info} 开始更新软件，请手动确认是否升级 ！"
+			apt-get upgrade
+		fi		
 		echo -e "${Info} 更新软件及系统完毕，请稍后自行重启 ！"
 	fi
 }
