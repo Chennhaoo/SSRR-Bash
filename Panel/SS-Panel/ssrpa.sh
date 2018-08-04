@@ -715,6 +715,8 @@ Sys_time(){
     [[ ${release} = "centos" ]] && echo -e "${Error} 此命令只支持Debian/Ubuntu !" && exit 1
 	echo -e "${Info} 开始修改系统时间...."
 	dpkg-reconfigure tzdata
+	apt-get install ntpdate -y
+	ntpdate cn.pool.ntp.org
 	echo -e "${Info} 系统时间修改完毕，请使用 date 命令查看！"
 }
 #更新系统及软件
