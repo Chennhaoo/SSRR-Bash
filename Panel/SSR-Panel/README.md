@@ -1,17 +1,17 @@
-此脚本只适用于`SSR-Panel`面板后端，全自动一键搭建。其他面板无法对接！！！
-基于`https://github.com/ToyoDAdoubi`源码修改，参考了`GitHub@hybtoy`  
-此版本基于doub大佬1.0.25版本修改，脚本有空才升级
+此脚本只适用于`SSR-Panel`面板后端，全自动一键搭建。其他面板无法对接！！！<br>
+基于`https://github.com/ToyoDAdoubi`源码修改，参考了`GitHub@hybtoy`  <br>
+此版本基于doub大佬1.0.25版本修改，脚本有空才升级<br>
 
-面板：
+面板：<br>
  `https://github.com/ssrpanel/ssrpanel`
 
-后端引用：
+后端引用：<br>
  `https://github.com/ssrpanel/shadowsocksr`
 
-使用方法：
+使用方法：<br>
 `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SSR-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
 
-相较于Doubi大老原始脚本增加了以下东西：
+相较于Doubi大老原始脚本增加了以下东西：<br>
 增加加密：
 -----
 
