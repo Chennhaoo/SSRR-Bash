@@ -18,3 +18,4 @@ SS-Panel后端版：<br>
 SSR-Panel后端版：<br>
 `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SSR-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
 
+本人水平有限，部分问题有可能无法解决，见谅~
