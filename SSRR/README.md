@@ -1,5 +1,5 @@
 此脚本只适用于`ShadowsocksR mudbjson server`多端口多用户，无法与面板对接！！！<br>
-基于`https://github.com/ToyoDAdoubi`源码修改，参考了`GitHub@hybtoy` <br>   
+基于`https://github.com/ToyoDAdoubi`源码修改，参考了`GitHub@hybtoy`    
 SSRR服务端基于`https://github.com/shadowsocksrr/shadowsocksr`     akkariiin/dev 分支<br>
 脚本详细用法参见`https://doub.io/ss-jc60/`<br>
 此版本基于doub大佬1.0.25版本修改，脚本有空才升级<br>

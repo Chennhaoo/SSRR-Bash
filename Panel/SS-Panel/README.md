@@ -11,7 +11,10 @@
 使用方法：<br>
 `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SS-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
 
-相较于Doubi大老原始脚本增加了以下东西：<br>
+<br>
+<br>
+<br>
+相较于Doubi大老原始脚本增加了以下东西：
 增加加密：
 -----
 
