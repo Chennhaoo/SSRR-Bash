@@ -11,6 +11,7 @@ ShadowsocksR mudbjson server版：<br>
 
 
 SS-Panel后端版：<br>
+服务端版本：2018-8-5<br>
 `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SS-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
 
 

@@ -983,10 +983,16 @@ Install_SSR(){
 }
 Update_SSR(){
 	SSR_installation_status
-	echo -e "因破娃暂停更新ShadowsocksR服务端，所以此功能临时禁用。"
-	#cd ${ssr_folder}
-	#git pull
-	#Restart_SSR
+	echo "建议备份配置文件，确定要升级？[y/N]" && echo
+	stty erase '^H' && read -p "(默认: n):" unyn
+	[[ -z ${unyn} ]] && unyn="n"
+	if [[ ${unyn} == [Yy] ]]; then
+		cd ${ssr_folder}
+		git pull
+		Restart_SSR
+	else
+		echo && echo " 卸载已取消..." && echo
+	fi
 }
 Uninstall_SSR(){
 	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} 没有安装 ShadowsocksR，请检查 !" && exit 1
@@ -1669,11 +1675,11 @@ Other_functions(){
   ${Green_font_prefix}7.${Font_color_suffix} 监控 ShadowsocksR服务端运行状态
   —— 说明：该功能适合于SSR服务端经常进程结束，启动该功能后会每分钟检测一次，当进程不存在则自动启动SSR服务端。
 ————————————
-  ${Green_font_prefix}8.${Font_color_suffix} 更新软件源
+  ${Green_font_prefix}8.${Font_color_suffix} 更新系统软件源
   ${Tip} 仅支持Debian/Ubuntu系统
 ———————————— 
   ${Green_font_prefix}9.${Font_color_suffix} 修改系统时间
-  ${Green_font_prefix}10.${Font_color_suffix} 更新软件 （谨慎操作） 
+  ${Green_font_prefix}10.${Font_color_suffix} 更新系统软件 （谨慎操作） 
   " && echo
 	stty erase '^H' && read -p "(默认: 取消):" other_num
 	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
@@ -1899,8 +1905,8 @@ elif [[ "${action}" == "monitor" ]]; then
 	crontab_monitor_ssr
 else
 	echo -e "  ShadowsocksRR MuJSON后端一键管理脚本 ${Green_font_prefix}[MOD_${sh_ver} 180805]${Font_color_suffix} 
-  ---- GitHub@ChennHaoo  GitHub@hybtoy  GitHub@ToyoDAdoubi ----
-  ---- 安装位置：/usr/local/shadowsocksr ----
+  ---- GitHub@ChennHaoo @hybtoy @ToyoDAdoubi @YihanH ----
+  ${Tip} 安装位置：/usr/local/shadowsocksr
 
   ${Green_font_prefix}1.${Font_color_suffix} 安装 ShadowsocksR
   ${Green_font_prefix}2.${Font_color_suffix} 更新 ShadowsocksR
