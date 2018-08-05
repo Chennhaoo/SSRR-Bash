@@ -23,7 +23,7 @@ SSRR服务端基于`https://github.com/shadowsocksrr/shadowsocksr`     akkariiin
 使用方法
 ----
 
-    `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/SSRR/ssrmu.sh && chmod +x ssrmu.sh && bash ssrmu.sh`
+`wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/SSRR/ssrmu.sh && chmod +x ssrmu.sh && bash ssrmu.sh`
     
 
 其他：

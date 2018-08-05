@@ -6,12 +6,12 @@
 使用：
 -----
 
-    ShadowsocksR mudbjson server版：
-    `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/SSRR/ssrmu.sh && chmod +x ssrmu.sh && bash ssrmu.sh`
+ShadowsocksR mudbjson server版：
+`wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/SSRR/ssrmu.sh && chmod +x ssrmu.sh && bash ssrmu.sh`
 
-    SS-Panel后端版：
-    `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SS-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
+SS-Panel后端版：
+`wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SS-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
 
-    SSR-Panel后端版：
-    `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SSR-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
+SSR-Panel后端版：
+`wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SSR-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
 

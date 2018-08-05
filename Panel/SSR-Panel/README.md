@@ -9,7 +9,7 @@
  `https://github.com/ssrpanel/shadowsocksr`
 
 使用方法：
- `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SSR-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
+`wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SSR-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
 
 相较于Doubi大老原始脚本增加了以下东西：
 增加加密：
