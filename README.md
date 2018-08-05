@@ -1,6 +1,6 @@
 基于`https://github.com/ToyoDAdoubi`源码修改，参考了`GitHub@hybtoy`<br>
 脚本详细用法参见`https://doub.io/ss-jc60/`<br>
-基于doub大佬1.0.25版本修改，脚本有空才升级<br>
+基于doub大佬1.0.26版本修改，脚本有空才升级<br>
 可进入文件夹查看每个脚本详细特性。<br>
 
 使用：
