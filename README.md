@@ -9,11 +9,11 @@
 ShadowsocksR mudbjson server版：<br>
 `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/SSRR/ssrmu.sh && chmod +x ssrmu.sh && bash ssrmu.sh`
 
-<br>
+
 SS-Panel后端版：<br>
 `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SS-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
 
-<br>
+
 SSR-Panel后端版：<br>
 `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SSR-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
 
