@@ -1,33 +1,17 @@
-基于`https://github.com/ToyoDAdoubi`源码修改，参考了`GitHub@hybtoy`    
-SSRR服务端基于`https://github.com/shadowsocksrr/shadowsocksr`     akkariiin/dev 分支<br>
+基于`https://github.com/ToyoDAdoubi`源码修改，参考了`GitHub@hybtoy`
 脚本详细用法参见`https://doub.io/ss-jc60/`<br>
-此版本基于doub大佬1.0.25版本修改，脚本有空才升级
+基于doub大佬1.0.25版本修改，脚本有空才升级<br>
+可进入文件夹查看每个脚本详细特性。<br>
 
-增加加密：
+使用：
 -----
 
-    xsalsa20
-    xchacha20
+    ShadowsocksR mudbjson server版：
+    `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/SSRR/ssrmu.sh && chmod +x ssrmu.sh && bash ssrmu.sh`
 
+    SS-Panel后端版：
+    `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SS-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
 
-增加协议：
------
-
-    auth_chain_c
-    auth_chain_d
-    auth_chain_e
-    auth_chain_f
-
-
-使用方法
-----
-
-    wget https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/ssrmu.sh && chmod +x ssrmu.sh && bash ssrmu.sh
-    
-
-其他：
------
-
-    1、添加doub的SSH端口修改脚本
-    2、添加debian/Ubuntu系统更新源和软件选项
+    SSR-Panel后端版：
+    `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SSR-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
 
