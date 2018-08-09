@@ -1,6 +1,6 @@
 此脚本只适用于`SSR-Panel`面板后端，全自动一键搭建。其他面板无法对接！！！<br>
 基于`https://github.com/ToyoDAdoubi`源码修改，参考了`GitHub@hybtoy`  <br>
-此版本基于doub大佬1.0.25版本修改，脚本有空才升级<br>
+此版本基于doub大佬1.0.26版本修改，脚本有空才升级<br>
 
 面板：<br>
  `https://github.com/ssrpanel/ssrpanel`

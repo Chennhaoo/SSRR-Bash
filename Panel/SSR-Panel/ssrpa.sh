@@ -4,14 +4,15 @@ export PATH
 
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
-#	Description: Install the SSRPanel后端管理脚本
-#	Version: 1.0.25
+#	Description: Install the ShadowsocksR mudbjson server
+#	Version: 1.0.26
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
+
 #------------------------------------------环境配置开始
-sh_ver="1.0.25"
+sh_ver="1.0.26"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -55,23 +56,23 @@ check_sys(){
     fi
 	bit=`uname -m`
 }
-Debian_apt(){
-	apt-get update
-	cat /etc/issue |grep 9\..*>/dev/null
-	if [[ $? = 0 ]]; then
-		apt-get install -y vim unzip cron net-tools
-	else
-		apt-get install -y vim unzip cron
-	fi
+#------------------------------------------环境配置结束
+
+#------------------------------------------检查选项开始
+check_pid(){
+	PID=`ps -ef |grep -v grep | grep server.py |awk '{print $2}'`
 }
-Centos_yum(){
-	yum update
-	cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
-	if [[ $? = 0 ]]; then
-		yum install -y vim unzip crond net-tools
-	else
-		yum install -y vim unzip crond
-	fi
+check_crontab(){
+	[[ ! -e "/usr/bin/crontab" ]] && echo -e "${Error} 缺少依赖 Crontab ，请尝试手动安装 CentOS: yum install crond -y , Debian/Ubuntu: apt-get install cron -y !" && exit 1
+}
+SSR_installation_status(){
+	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} 没有发现 ShadowsocksR 文件夹，请检查 !" && exit 1
+}
+Server_Speeder_installation_status(){
+	[[ ! -e ${Server_Speeder_file} ]] && echo -e "${Error} 没有安装 锐速(Server Speeder)，请检查 !" && exit 1
+}
+LotServer_installation_status(){
+	[[ ! -e ${LotServer_file} ]] && echo -e "${Error} 没有安装 LotServer，请检查 !" && exit 1
 }
 Check_python(){
 	python_ver=`python -h`
@@ -84,25 +85,27 @@ Check_python(){
 		fi
 	fi
 }
-#检查定时任务
-check_crontab(){
-	[[ ! -e "/usr/bin/crontab" ]] && echo -e "${Error} 缺少依赖 Crontab ，请尝试手动安装 CentOS: yum install crond -y , Debian/Ubuntu: apt-get install cron -y !" && exit 1
+Centos_yum(){
+	yum update
+	cat /etc/redhat-release |grep 7\..*|grep -i centos>/dev/null
+	if [[ $? = 0 ]]; then
+		yum install -y vim unzip crond net-tools git
+	else
+		yum install -y vim unzip crond git
+	fi
 }
-Server_Speeder_installation_status(){
-	[[ ! -e ${Server_Speeder_file} ]] && echo -e "${Error} 没有安装 锐速(Server Speeder)，请检查 !" && exit 1
+Debian_apt(){
+	apt-get update
+	cat /etc/issue |grep 9\..*>/dev/null
+	if [[ $? = 0 ]]; then
+		apt-get install -y vim unzip cron net-tools git
+	else
+		apt-get install -y vim unzip cron git
+	fi
 }
-LotServer_installation_status(){
-	[[ ! -e ${LotServer_file} ]] && echo -e "${Error} 没有安装 LotServer，请检查 !" && exit 1
-}
-#------------------------------------------环境配置结束
+#------------------------------------------检查选项结束
 
 #------------------------------------------Libsodium开始
-Check_Libsodium_ver(){
-	echo -e "${Info} 开始获取 libsodium 最新版本..."
-	Libsodiumr_ver=$(wget -qO- "https://github.com/jedisct1/libsodium/tags"|grep "/jedisct1/libsodium/releases/tag/"|head -1|sed -r 's/.*tag\/(.+)\">.*/\1/')
-	[[ -z ${Libsodiumr_ver} ]] && Libsodiumr_ver=${Libsodiumr_ver_backup}
-	echo -e "${Info} libsodium 最新版本为 ${Green_font_prefix}${Libsodiumr_ver}${Font_color_suffix} !"
-}
 Install_Libsodium(){
 	if [[ -e ${Libsodiumr_file} ]]; then
 		echo -e "${Error} libsodium 已安装 , 是否覆盖安装(更新)？[y/N]"
@@ -142,9 +145,15 @@ Install_Libsodium(){
 	[[ ! -e ${Libsodiumr_file} ]] && echo -e "${Error} libsodium 安装失败 !" && exit 1
 	echo && echo -e "${Info} libsodium 安装成功 !" && echo
 }
+Check_Libsodium_ver(){
+	echo -e "${Info} 开始获取 libsodium 最新版本..."
+	Libsodiumr_ver=$(wget -qO- "https://github.com/jedisct1/libsodium/tags"|grep "/jedisct1/libsodium/releases/tag/"|head -1|sed -r 's/.*tag\/(.+)\">.*/\1/')
+	[[ -z ${Libsodiumr_ver} ]] && Libsodiumr_ver=${Libsodiumr_ver_backup}
+	echo -e "${Info} libsodium 最新版本为 ${Green_font_prefix}${Libsodiumr_ver}${Font_color_suffix} !"
+}
 #------------------------------------------Libsodium结束
 
-#------------------------------------------SSR开始
+#------------------------------------------ShadowsocksR开始
 Install_SSR(){
 	check_root
 	[[ -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR 文件夹已存在，请检查( 如安装失败或者存在旧版本，请先卸载 ) !" && exit 1
@@ -158,17 +167,7 @@ Install_SSR(){
 	JQ_install
 	echo -e "${Info} 安装Cymysql"
 	Cymysql_install
-	echo -e "${Info} 所有步骤 安装完毕，开始启动 ShadowsocksR服务端..."
-	Start_SSR
 	menu_status
-}
-#检查SSR运行进程
-check_pid(){
-	PID=`ps -ef |grep -v grep | grep server.py |awk '{print $2}'`
-}
-#SSR运行状态
-SSR_installation_status(){
-	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} 没有发现 ShadowsocksR 文件夹，请检查 !" && exit 1
 }
 # 安装 依赖
 Installation_dependency(){
@@ -180,20 +179,63 @@ Installation_dependency(){
 	[[ ! -e "/usr/bin/unzip" ]] && echo -e "${Error} 依赖 unzip(解压压缩包) 安装失败，多半是软件包源的问题，请检查 !" && exit 1
 	Check_python
 	#echo "nameserver 8.8.8.8" > /etc/resolv.conf
-	#echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-	cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+	#echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 	if [[ ${release} == "centos" ]]; then
 		/etc/init.d/crond restart
 	else
 		/etc/init.d/cron restart
 	fi
 }
+# 下载 ShadowsocksR
+Download_SSR(){
+	cd "/usr/local"
+	git clone https://github.com/ssrpanel/shadowsocksr.git
+	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR服务端 下载失败 !" && exit 1
+	cd "shadowsocksr"
+    sed -i 's/ \/\/ only works under multi-user mode//g' "${config_user_file}"
+	echo -e "${Info} ShadowsocksR服务端 下载完成 !"
+}
+#SSR服务
+Service_SSR(){
+	if [[ ${release} = "centos" ]]; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/ssrmu_centos -O /etc/init.d/ssrmu; then
+			echo -e "${Error} ShadowsocksR服务 管理脚本下载失败 !" && exit 1
+		fi
+		chmod +x /etc/init.d/ssrmu
+		chkconfig --add ssrmu
+		chkconfig ssrmu on
+	else
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/ssrmu_debian -O /etc/init.d/ssrmu; then
+			echo -e "${Error} ShadowsocksR服务 管理脚本下载失败 !" && exit 1
+		fi
+		chmod +x /etc/init.d/ssrmu
+		update-rc.d -f ssrmu defaults
+	fi
+	echo -e "${Info} ShadowsocksR服务 管理脚本下载完成 !"
+}
+# 安装 JQ解析器
+JQ_install(){
+	if [[ ! -e ${jq_file} ]]; then
+		cd "${ssr_folder}"
+		if [[ ${bit} = "x86_64" ]]; then
+			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64" -O ${jq_file}
+		else
+			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux32" -O ${jq_file}
+		fi
+		[[ ! -e ${jq_file} ]] && echo -e "${Error} JQ解析器 重命名失败，请检查 !" && exit 1
+		chmod +x ${jq_file}
+		echo -e "${Info} JQ解析器 安装完成，继续..." 
+	else
+		echo -e "${Info} JQ解析器 已安装，继续..."
+	fi
+}
 #安装Cymysql
 Cymysql_install(){
 	echo && echo -e "  请根据MYSQL版本安装Cymysql
 	
- ${Green_font_prefix}1.${Font_color_suffix} 5.5及以下
- ${Green_font_prefix}2.${Font_color_suffix} 5.6及以上" && echo
+ 	${Green_font_prefix}1.${Font_color_suffix} 5.5及以下
+ 	${Green_font_prefix}2.${Font_color_suffix} 5.6及以上" && echo
 	stty erase '^H' && read -p "(默认: 取消):" num
 	[[ -z "${num}" ]] && echo "已取消..." && exit 1
 	if [[ ${num} == "1" ]]; then
@@ -216,84 +258,56 @@ Cymysql_install(){
 		echo -e "${Error} 请输入正确的数字(1-2)" && exit 1
 	fi
 }
-# 安装 JQ解析器
-JQ_install(){
-	if [[ ! -e ${jq_file} ]]; then
-		cd "${ssr_folder}"
-		if [[ ${bit} = "x86_64" ]]; then
-			#mv "jq-linux64" "jq"
-			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64" -O ${jq_file}
-		else
-			#mv "jq-linux32" "jq"
-			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux32" -O ${jq_file}
-		fi
-		[[ ! -e ${jq_file} ]] && echo -e "${Error} JQ解析器 重命名失败，请检查 !" && exit 1
-		chmod +x ${jq_file}
-		echo -e "${Info} JQ解析器 安装完成，继续..." 
-	else
-		echo -e "${Info} JQ解析器 已安装，继续..."
-	fi
-}
-# 下载 SSRR
-Download_SSR(){
-	cd "/usr/local"
-	echo -e "${Info} 准备安装git组件"
-	apt-get install git -y
-	git clone https://github.com/Chennhaoo/shadowsocksr.git
-	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksRR服务端 下载失败 !" && exit 1
-	echo -e "${Info} ShadowsocksRR服务端 下载完成 !"
-}
-#SSR服务配置文件
-Service_SSR(){
-	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/ssrmu_centos -O /etc/init.d/ssrmu; then
-			echo -e "${Error} ShadowsocksRR服务 管理脚本下载失败 !" && exit 1
-		fi
-		chmod +x /etc/init.d/ssrmu
-		chkconfig --add ssrmu
-		chkconfig ssrmu on
-	else
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/ssrmu_debian -O /etc/init.d/ssrmu; then
-			echo -e "${Error} ShadowsocksRR服务 管理脚本下载失败 !" && exit 1
-		fi
-		chmod +x /etc/init.d/ssrmu
-		update-rc.d -f ssrmu defaults
-	fi
-	echo -e "${Info} ShadowsocksRR服务 管理脚本下载完成 !"
-}
-Start_SSR(){  #启动SSR服务
+#启动SSR
+Start_SSR(){
 	SSR_installation_status
 	check_pid
 	[[ ! -z ${PID} ]] && echo -e "${Error} ShadowsocksR 正在运行 !" && exit 1
 	/etc/init.d/ssrmu start
 }
-Stop_SSR(){  #停止SSR
+#停止SSR
+Stop_SSR(){
 	SSR_installation_status
 	check_pid
 	[[ -z ${PID} ]] && echo -e "${Error} ShadowsocksR 未运行 !" && exit 1
 	/etc/init.d/ssrmu stop
 }
-Restart_SSR(){  #重启SSR
+#重启SSR
+Restart_SSR(){
 	SSR_installation_status
 	check_pid
 	[[ ! -z ${PID} ]] && /etc/init.d/ssrmu stop
 	/etc/init.d/ssrmu start
 }
-View_Log(){   #查看SSR日志
+#查看SSR日志
+View_Log(){
 	SSR_installation_status
 	[[ ! -e ${ssr_log_file} ]] && echo -e "${Error} ShadowsocksR日志文件不存在 !" && exit 1
 	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo
 	tail -f ${ssr_log_file}
 }
-Update_SSR(){  #检查更新
-	SSR_installation_status
-	echo -e "准备更新"
-	cd ${ssr_folder}
-	git pull
-	Restart_SSR
-	echo -e "更新完毕"
+#检查SSR更新
+Update_SSR(){ 
+	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} 没有安装 ShadowsocksR，请检查 !" && exit 1
+	echo "
+	更新前请备份好配置文件
+	确定要 更新ShadowsocksR？[y/N]
+	" && echo
+	stty erase '^H' && read -p "(默认: n):" unyn
+	[[ -z ${unyn} ]] && unyn="n"
+	if [[ ${unyn} == [Yy] ]]; then
+		SSR_installation_status
+		echo -e "准备更新"
+		cd ${ssr_folder}
+		git pull
+		Restart_SSR
+		echo -e "更新完毕"
+	else
+		echo && echo " 已取消..." && echo
+	fi
 }
-Uninstall_SSR(){  #卸载SSR
+#卸载SSR
+Uninstall_SSR(){
 	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} 没有安装 ShadowsocksR，请检查 !" && exit 1
 	echo "确定要 卸载ShadowsocksR？[y/N]" && echo
 	stty erase '^H' && read -p "(默认: n):" unyn
@@ -301,6 +315,10 @@ Uninstall_SSR(){  #卸载SSR
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid
 		[[ ! -z "${PID}" ]] && kill -9 ${PID}
+		if [[ ! -z $(crontab -l | grep "ssrpa.sh") ]]; then
+			crontab_monitor_ssr_cron_stop
+			Clear_transfer_all_cron_stop
+		fi
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del ssrmu
 		else
@@ -312,59 +330,9 @@ Uninstall_SSR(){  #卸载SSR
 		echo && echo " 卸载已取消..." && echo
 	fi
 }
-#------------------------------------------SSR结束
+#------------------------------------------ShadowsocksR结束
 
-#------------------------------------------杂项开始
-# 其他功能
-Other_functions(){
-	echo && echo -e "  你要做什么？
-	
-  ${Green_font_prefix}1.${Font_color_suffix} 配置 BBR
-  ${Green_font_prefix}2.${Font_color_suffix} 配置 锐速(ServerSpeeder)
-  ${Green_font_prefix}3.${Font_color_suffix} 配置 LotServer(锐速母公司)
-  ${Tip} 锐速/LotServer/BBR 不支持 OpenVZ！
-  ${Tip} 锐速和LotServer不能共存！
-————————————
-  ${Green_font_prefix}4.${Font_color_suffix} 一键封禁 BT/PT/SPAM (iptables)
-  ${Green_font_prefix}5.${Font_color_suffix} 一键解封 BT/PT/SPAM (iptables)
-————————————
-  ${Green_font_prefix}6.${Font_color_suffix} 切换 ShadowsocksR日志输出模式
-  —— 说明：SSR默认只输出错误日志，此项可切换为输出详细的访问日志。
-  ${Green_font_prefix}7.${Font_color_suffix} 监控 ShadowsocksR服务端运行状态
-  —— 说明：该功能适合于SSR服务端经常进程结束，启动该功能后会每分钟检测一次，当进程不存在则自动启动SSR服务端。
-————————————
-  ${Green_font_prefix}8.${Font_color_suffix} 更新软件源
-  ${Green_font_prefix}9.${Font_color_suffix} 修改系统时间 
-  ${Tip} 仅支持Debian/Ubuntu系统 
-————————————  
-  ${Green_font_prefix}10.${Font_color_suffix} 更新软件 （谨慎操作）
-  " && echo
-	stty erase '^H' && read -p "(默认: 取消):" other_num
-	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
-	if [[ ${other_num} == "1" ]]; then
-		Configure_BBR
-	elif [[ ${other_num} == "2" ]]; then
-		Configure_Server_Speeder
-	elif [[ ${other_num} == "3" ]]; then
-		Configure_LotServer
-	elif [[ ${other_num} == "4" ]]; then
-		BanBTPTSPAM
-	elif [[ ${other_num} == "5" ]]; then
-		UnBanBTPTSPAM
-	elif [[ ${other_num} == "6" ]]; then
-		Set_config_connect_verbose_info
-	elif [[ ${other_num} == "7" ]]; then
-		Set_crontab_monitor_ssr
-	elif [[ ${other_num} == "8" ]]; then
-		Update_YUAN	
-	elif [[ ${other_num} == "9" ]]; then
-		Sys_time
-	elif [[ ${other_num} == "10" ]]; then
-		Update_SYS			
-	else
-		echo -e "${Error} 请输入正确的数字 [1-10]" && exit 1
-	fi
-}
+#------------------------------------------SSH开始
 #修改SSH端口
 Install_SSHPOR(){
 	[[ ${release} = "centos" ]] && echo -e "${Error} 本脚本不支持 CentOS系统 !" && exit 1
@@ -390,6 +358,60 @@ Install_SSHPOR(){
 	fi
 	echo -e "${Info} 开始修改..."
 	bash "${SSH_file}"
+}
+#------------------------------------------SSH结束
+
+#------------------------------------------其他功能开始
+# 其他功能
+# 其他功能
+Other_functions(){
+	echo && echo -e "  你要做什么？
+	
+  ${Green_font_prefix}1.${Font_color_suffix} 配置 BBR
+  ${Green_font_prefix}2.${Font_color_suffix} 配置 锐速(ServerSpeeder)
+  ${Green_font_prefix}3.${Font_color_suffix} 配置 LotServer(锐速母公司)
+  ${Tip} 锐速/LotServer/BBR 不支持 OpenVZ！
+  ${Tip} 锐速和LotServer不能共存！
+————————————
+  ${Green_font_prefix}4.${Font_color_suffix} 一键封禁 BT/PT/SPAM (iptables)
+  ${Green_font_prefix}5.${Font_color_suffix} 一键解封 BT/PT/SPAM (iptables)
+————————————
+  ${Green_font_prefix}6.${Font_color_suffix} 切换 ShadowsocksR日志输出模式
+  —— 说明：SSR默认只输出错误日志，此项可切换为输出详细的访问日志。
+  ${Green_font_prefix}7.${Font_color_suffix} 监控 ShadowsocksR服务端运行状态
+  —— 说明：该功能适合于SSR服务端经常进程结束，启动该功能后会每分钟检测一次，当进程不存在则自动启动SSR服务端。
+————————————
+  ${Green_font_prefix}8.${Font_color_suffix} 更新软件源 
+  ${Tip} 仅支持Debian/Ubuntu系统 
+———————————— 
+  ${Green_font_prefix}9.${Font_color_suffix} 更新系统时间 
+  ${Green_font_prefix}10.${Font_color_suffix} 更新软件 （谨慎操作）
+  " && echo
+	stty erase '^H' && read -p "(默认: 取消):" other_num
+	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
+	if [[ ${other_num} == "1" ]]; then
+		Configure_BBR
+	elif [[ ${other_num} == "2" ]]; then
+		Configure_Server_Speeder
+	elif [[ ${other_num} == "3" ]]; then
+		Configure_LotServer
+	elif [[ ${other_num} == "4" ]]; then
+		BanBTPTSPAM
+	elif [[ ${other_num} == "5" ]]; then
+		UnBanBTPTSPAM
+	elif [[ ${other_num} == "6" ]]; then
+		Set_config_connect_verbose_info
+	elif [[ ${other_num} == "7" ]]; then
+		Set_crontab_monitor_ssr
+	elif [[ ${other_num} == "8" ]]; then
+		Update_YUAN	
+	elif [[ ${other_num} == "9" ]]; then
+		Sys_time
+	elif [[ ${other_num} == "10" ]]; then
+		Update_SYS	
+	else
+		echo -e "${Error} 请输入正确的数字 [1-10]" && exit 1
+	fi
 }
 # BBR
 Configure_BBR(){
@@ -447,6 +469,7 @@ BBR_installation_status(){
 		fi
 	fi
 }
+
 # 锐速
 Configure_Server_Speeder(){
 	echo && echo -e "你要做什么？
@@ -511,6 +534,7 @@ Uninstall_ServerSpeeder(){
 		echo && echo "锐速(Server Speeder) 卸载完成 !" && echo
 	fi
 }
+
 # LotServer
 Configure_LotServer(){
 	echo && echo -e "你要做什么？
@@ -571,18 +595,9 @@ Uninstall_LotServer(){
 		echo && echo "LotServer 卸载完成 !" && echo
 	fi
 }
-# 封禁 BT PT SPAM
-BanBTPTSPAM(){
-	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh banall
-	rm -rf ban_iptables.sh
-}
-# 解封 BT PT SPAM
-UnBanBTPTSPAM(){
-	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh unbanall
-	rm -rf ban_iptables.sh
-}
-#SSR输出日志修改
-Set_config_connect_verbose_info(){ 
+
+#修改日志
+Set_config_connect_verbose_info(){
 	SSR_installation_status
 	[[ ! -e ${jq_file} ]] && echo -e "${Error} JQ解析器 不存在，请检查 !" && exit 1
 	connect_verbose_info=`${jq_file} '.connect_verbose_info' ${config_user_file}`
@@ -615,7 +630,20 @@ Set_config_connect_verbose_info(){
 Modify_config_connect_verbose_info(){
 	sed -i 's/"connect_verbose_info": '"$(echo ${connect_verbose_info})"',/"connect_verbose_info": '"$(echo ${ssr_connect_verbose_info})"',/g' ${config_user_file}
 }
-Set_crontab_monitor_ssr(){  #SSR定时任务 有定时任务文件名，修改注意
+
+# 封禁 BT PT SPAM
+BanBTPTSPAM(){
+	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh banall
+	rm -rf ban_iptables.sh
+}
+# 解封 BT PT SPAM
+UnBanBTPTSPAM(){
+	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh unbanall
+	rm -rf ban_iptables.sh
+}
+
+#-----SSR监控 有文件路径，注意修改
+Set_crontab_monitor_ssr(){
 	SSR_installation_status
 	crontab_monitor_ssr_status=$(crontab -l|grep "ssrpa.sh monitor")
 	if [[ -z "${crontab_monitor_ssr_status}" ]]; then
@@ -640,7 +668,7 @@ Set_crontab_monitor_ssr(){  #SSR定时任务 有定时任务文件名，修改�
 		fi
 	fi
 }
-crontab_monitor_ssr(){  #SSR定时任务
+crontab_monitor_ssr(){
 	SSR_installation_status
 	check_pid
 	if [[ -z ${PID} ]]; then
@@ -657,7 +685,8 @@ crontab_monitor_ssr(){  #SSR定时任务
 		echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端 进程运行正常..." exit 0
 	fi
 }
-crontab_monitor_ssr_cron_start(){  #SSR定时任务 有文件路径 注意
+#开始SSR监控
+crontab_monitor_ssr_cron_start(){
 	crontab -l > "$file/crontab.bak"
 	sed -i "/ssrpa.sh monitor/d" "$file/crontab.bak"
 	echo -e "\n* * * * * /bin/bash $file/ssrpa.sh monitor" >> "$file/crontab.bak"
@@ -670,7 +699,8 @@ crontab_monitor_ssr_cron_start(){  #SSR定时任务 有文件路径 注意
 		echo -e "${Info} ShadowsocksR服务端运行状态监控功能 启动成功 !"
 	fi
 }
-crontab_monitor_ssr_cron_stop(){   #SSR定时任务 有文件路径 注意
+#停止SSR监控
+crontab_monitor_ssr_cron_stop(){
 	crontab -l > "$file/crontab.bak"
 	sed -i "/ssrpa.sh monitor/d" "$file/crontab.bak"
 	crontab "$file/crontab.bak"
@@ -682,6 +712,8 @@ crontab_monitor_ssr_cron_stop(){   #SSR定时任务 有文件路径 注意
 		echo -e "${Info} ShadowsocksR服务端运行状态监控功能 停止成功 !"
 	fi
 }
+#-----SSR监控
+
 #更新软件源
 Update_YUAN(){
     [[ ${release} = "centos" ]] && echo -e "${Error} 此命令只支持Debian/Ubuntu !" && exit 1
@@ -691,9 +723,16 @@ Update_YUAN(){
 }
 #修改系统时间
 Sys_time(){
-    [[ ${release} = "centos" ]] && echo -e "${Error} 此命令只支持Debian/Ubuntu !" && exit 1
-	echo -e "${Info} 开始修改系统时间...."
-	dpkg-reconfigure tzdata
+	echo -e "${Info} 开始同步系统时间...."
+	if [[ ${release} == "centos" ]]; then
+		yum -y install ntp ntpdate
+		tzselect
+		ntpdate cn.pool.ntp.org
+	else
+		dpkg-reconfigure tzdata
+		apt-get install ntpdate -y
+		ntpdate cn.pool.ntp.org
+	fi
 	echo -e "${Info} 系统时间修改完毕，请使用 date 命令查看！"
 }
 #更新系统及软件
@@ -716,10 +755,57 @@ Update_SYS(){
 		echo -e "${Info} 更新软件及系统完毕，请稍后自行重启 ！"
 	fi
 }
-#------------------------------------------杂项结束
+#------------------------------------------其他功能结束
 
-#------------------------------------------菜单开始
-menu_status(){ #刷新菜单
+#------------------------------------------一键环境部署开始
+One_key(){
+	echo -e "
+	1.更新系统
+	2.更新时间
+	3.安装libsodium
+	4.一键封禁BT
+	5.BBR（OpenVZ不可用）
+	${Info} 每一项可单独自行安装
+	"
+	echo "确定要开始吗 ？[y/N]" && echo
+	stty erase '^H' && read -p "(默认: n):" unyn
+	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
+	if [[ ${unyn} == [Yy] ]]; then		
+		echo -e "${Info} 开始更新系统"
+		Update_SYS
+		echo -e "${Info} 开始更新时间"
+		Sys_time
+		echo -e "${Info} 安装libsodium"
+		Install_Lib
+		echo -e "${Info} 一键封禁BT"
+		BanBTPT
+		echo -e "${Info} BBR"
+		Configure_BBR
+		echo -e "${Info} 环境部署完毕，请重启VPS"
+	fi
+}
+#libsodium安装判断
+Install_Lib(){
+	echo "确定要开始吗 ？[y/N]" && echo
+	stty erase '^H' && read -p "(默认: n):" unyn
+	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
+	if [[ ${unyn} == [Yy] ]]; then
+		Install_Libsodium
+	fi	
+}
+#BT封禁判断
+BanBTPT(){
+	echo "确定要开始吗 ？[y/N]" && echo
+	stty erase '^H' && read -p "(默认: n):" unyn
+	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
+	if [[ ${unyn} == [Yy] ]]; then
+		BanBTPTSPAM
+	fi	
+}
+#------------------------------------------一键环境部署结束
+
+# 显示 菜单状态
+menu_status(){
 	if [[ -e ${ssr_folder} ]]; then
 		check_pid
 		if [[ ! -z "${PID}" ]]; then
@@ -732,32 +818,36 @@ menu_status(){ #刷新菜单
 		echo -e " 当前状态: ${Red_font_prefix}未安装${Font_color_suffix}"
 	fi
 }
-check_sys #检查系统
+check_sys
 [[ ${release} != "debian" ]] && [[ ${release} != "ubuntu" ]] && [[ ${release} != "centos" ]] && echo -e "${Error} 本脚本不支持当前系统 ${release} !" && exit 1
-action=$1  #定时任务检查
-if [[ "${action}" == "monitor" ]]; then
+action=$1
+if [[ "${action}" == "clearall" ]]; then
+	Clear_transfer_all
+elif [[ "${action}" == "monitor" ]]; then
 	crontab_monitor_ssr
-	else
+else
 	echo -e "
-          SSRPanel后端管理脚本${Green_font_prefix}[MOD_${sh_ver}]${Font_color_suffix}
-  ---- GitHub@ChennHaoo @hybtoy @ToyoDAdoubi ----
- ${Tip} 本脚本为SSRPanel后端一键搭建脚本,不适用于MuJSON多用户后端!!!!
+          SSR-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 180808]${Font_color_suffix}
+  ---- GitHub@ChennHaoo @hybtoy @ToyoDAdoubi @YihanH ----
+ ${Tip} 本脚本为SSR-Panel后端一键搭建脚本，不适用于MuJSON多用户后端!!!!
+ ${Tip} 安装位置：/usr/local/shadowsocksr
 
   ${Green_font_prefix}1.${Font_color_suffix} 安装 libsodium(chacha20 xchacha20)
-  ${Green_font_prefix}2.${Font_color_suffix} 安装 ShadowsocksRR
-  ${Green_font_prefix}3.${Font_color_suffix} 更新 ShadowsocksRR
-  ${Green_font_prefix}4.${Font_color_suffix} 卸载 ShadowsocksRR
+  ${Green_font_prefix}2.${Font_color_suffix} 安装 ShadowsocksR
+  ${Green_font_prefix}3.${Font_color_suffix} 更新 ShadowsocksR
+  ${Green_font_prefix}4.${Font_color_suffix} 卸载 ShadowsocksR
 ————————————
-  ${Green_font_prefix}5.${Font_color_suffix} 启动 ShadowsocksRR
-  ${Green_font_prefix}6.${Font_color_suffix} 停止 ShadowsocksRR
-  ${Green_font_prefix}7.${Font_color_suffix} 重启 ShadowsocksRR
-  ${Green_font_prefix}8.${Font_color_suffix} 查看 ShadowsocksRR 日志
+  ${Green_font_prefix}5.${Font_color_suffix} 启动 ShadowsocksR
+  ${Green_font_prefix}6.${Font_color_suffix} 停止 ShadowsocksR
+  ${Green_font_prefix}7.${Font_color_suffix} 重启 ShadowsocksR
+  ${Green_font_prefix}8.${Font_color_suffix} 查看 ShadowsocksR 日志
 ————————————
-  ${Green_font_prefix}9.${Font_color_suffix} 修改SSH端口 （如有BT面板，不建议在此修改）
-  ${Green_font_prefix}10.${Font_color_suffix} 其他功能
+  ${Green_font_prefix}9.${Font_color_suffix} 修改SSH端口 （如有宝塔面板，不建议在此修改）
+  ${Green_font_prefix}10.${Font_color_suffix} 一键环境部署
+  ${Green_font_prefix}11.${Font_color_suffix} 其他功能
  "
 	menu_status
-	echo && stty erase '^H' && read -p "请输入数字 [1-10]：" num
+	echo && stty erase '^H' && read -p "请输入数字 [1-11]：" num
 case "$num" in
 	1)
 	Install_Libsodium
@@ -787,11 +877,13 @@ case "$num" in
 	Install_SSHPOR
 	;;
 	10)
+	One_key
+	;;
+	11)
 	Other_functions
-	;;	
+	;;		
 	*)
-	echo -e "${Error} 请输入正确的数字 [1-10]"
+	echo -e "${Error} 请输入正确的数字 [1-11]"
 	;;
 esac
 fi
-#------------------------------------------菜单结束

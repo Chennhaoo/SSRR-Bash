@@ -761,52 +761,6 @@ Update_SYS(){
 }
 #------------------------------------------其他功能结束
 
-#------------------------------------------一键环境部署开始
-One_key(){
-	echo -e "
-	1.更新系统
-	2.更新时间
-	3.安装libsodium
-	4.一键封禁BT
-	5.BBR（OpenVZ不可用）
-	${Info} 每一项可单独自行安装
-	"
-	echo "确定要开始吗 ？[y/N]" && echo
-	stty erase '^H' && read -p "(默认: n):" unyn
-	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
-	if [[ ${unyn} == [Yy] ]]; then		
-		echo -e "${Info} 开始更新系统"
-		Update_SYS
-		echo -e "${Info} 开始更新时间"
-		Sys_time
-		echo -e "${Info} 安装libsodium"
-		Install_Lib
-		echo -e "${Info} 一键封禁BT"
-		BanBTPT
-		echo -e "${Info} BBR"
-		Configure_BBR
-		echo -e "${Info} 环境部署完毕，请重启VPS"
-	fi
-}
-#libsodium安装判断
-Install_Lib(){
-	echo "确定要开始吗 ？[y/N]" && echo
-	stty erase '^H' && read -p "(默认: n):" unyn
-	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
-	if [[ ${unyn} == [Yy] ]]; then
-		Install_Libsodium
-	fi	
-}
-#BT封禁判断
-BanBTPT(){
-	echo "确定要开始吗 ？[y/N]" && echo
-	stty erase '^H' && read -p "(默认: n):" unyn
-	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
-	if [[ ${unyn} == [Yy] ]]; then
-		BanBTPTSPAM
-	fi	
-}
-#------------------------------------------一键环境部署结束
 
 # 显示 菜单状态
 menu_status(){
@@ -831,7 +785,7 @@ elif [[ "${action}" == "monitor" ]]; then
 	crontab_monitor_ssr
 else
 	echo -e "
-          SS-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 180807]${Font_color_suffix}
+          SS-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 180805]${Font_color_suffix}
   ---- GitHub@ChennHaoo @hybtoy @ToyoDAdoubi @YihanH ----
  ${Tip} 本脚本为SS-Panel后端一键搭建脚本，不适用于MuJSON多用户后端!!!!
  ${Tip} 安装位置：/usr/local/shadowsocksr
@@ -847,11 +801,10 @@ else
   ${Green_font_prefix}8.${Font_color_suffix} 查看 ShadowsocksR 日志
 ————————————
   ${Green_font_prefix}9.${Font_color_suffix} 修改SSH端口 （如有宝塔面板，不建议在此修改）
-  ${Green_font_prefix}10.${Font_color_suffix} 一键环境部署
-  ${Green_font_prefix}11.${Font_color_suffix} 其他功能
+  ${Green_font_prefix}10.${Font_color_suffix} 其他功能
  "
 	menu_status
-	echo && stty erase '^H' && read -p "请输入数字 [1-11]：" num
+	echo && stty erase '^H' && read -p "请输入数字 [1-10]：" num
 case "$num" in
 	1)
 	Install_Libsodium
@@ -881,13 +834,10 @@ case "$num" in
 	Install_SSHPOR
 	;;
 	10)
-	One_key
-	;;
-	11)
 	Other_functions
-	;;		
+	;;	
 	*)
-	echo -e "${Error} 请输入正确的数字 [1-11]"
+	echo -e "${Error} 请输入正确的数字 [1-10]"
 	;;
 esac
 fi
