@@ -324,7 +324,7 @@ Uninstall_SSR(){
 		else
 			update-rc.d -f ssrmu remove
 		fi
-		rm -rf ${ssr_folder} && rm -rf /etc/init.d/ssrmu
+		rm -rf ${ssr_folder} && rm -rf /etc/init.d/ssrmu && rm ${SSH_file} && rm ${BBR_file}
 		echo && echo " ShadowsocksR 卸载完成 !" && echo
 	else
 		echo && echo " 卸载已取消..." && echo
@@ -759,48 +759,55 @@ Update_SYS(){
 
 #------------------------------------------一键环境部署开始
 One_key(){
-	echo -e "
-	1.更新系统
-	2.更新时间
-	3.安装libsodium
-	4.一键封禁BT
-	5.BBR（OpenVZ不可用）
-	${Info} 每一项可单独自行安装
-	"
-	echo "确定要开始吗 ？[y/N]" && echo
+echo -e "
+ 1.更新系统
+ 2.更新时间
+ 3.安装libsodium
+ 4.一键封禁BT
+ 5.安装BBR（OpenVZ不可用）
+ ${Tip} 每一项可单独自行安装
+ "
+	echo "1.确定更新系统吗 ？[y/N]" && echo
 	stty erase '^H' && read -p "(默认: n):" unyn
-	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
-	if [[ ${unyn} == [Yy] ]]; then		
-		echo -e "${Info} 开始更新系统"
+	if [[ ${unyn} == [Yy] ]]; then
 		Update_SYS
-		echo -e "${Info} 开始更新时间"
-		Sys_time
-		echo -e "${Info} 安装libsodium"
-		Install_Lib
-		echo -e "${Info} 一键封禁BT"
-		BanBTPT
-		echo -e "${Info} BBR"
-		Configure_BBR
-		echo -e "${Info} 环境部署完毕，请重启VPS"
+		echo -e "${Info} 更新系统完毕"		
+	else
+		echo -e "${Info} 已跳过当前命令"
 	fi
-}
-#libsodium安装判断
-Install_Lib(){
-	echo "确定要开始吗 ？[y/N]" && echo
+	echo "2.确定更新时间吗 ？[y/N]" && echo
 	stty erase '^H' && read -p "(默认: n):" unyn
-	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
+	if [[ ${unyn} == [Yy] ]]; then
+		Sys_time
+		echo -e "${Info} 更新时间完毕"		
+	else
+		echo -e "${Info} 已跳过当前命令"
+	fi
+	echo "3.确定安装libsodium吗 ？[y/N]" && echo
+	stty erase '^H' && read -p "(默认: n):" unyn
 	if [[ ${unyn} == [Yy] ]]; then
 		Install_Libsodium
-	fi	
-}
-#BT封禁判断
-BanBTPT(){
-	echo "确定要开始吗 ？[y/N]" && echo
+		echo -e "${Info} 安装libsodium完毕"		
+	else
+		echo -e "${Info} 已跳过当前命令"
+	fi
+	echo "4.确定一键封禁BT吗 ？[y/N]" && echo
 	stty erase '^H' && read -p "(默认: n):" unyn
-	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
 	if [[ ${unyn} == [Yy] ]]; then
 		BanBTPTSPAM
-	fi	
+		echo -e "${Info} 一键封禁BT完毕"		
+	else
+		echo -e "${Info} 已跳过当前命令"
+	fi
+	echo "5.确定安装BBR吗（OpenVZ不可用）？[y/N]" && echo
+	stty erase '^H' && read -p "(默认: n):" unyn
+	if [[ ${unyn} == [Yy] ]]; then
+		Configure_BBR
+		echo -e "${Info} BBR安装完毕"		
+	else
+		echo -e "${Info} 已跳过当前命令"
+	fi
+	echo -e "${Tip} 系统环境配置完毕"
 }
 #------------------------------------------一键环境部署结束
 
@@ -827,7 +834,7 @@ elif [[ "${action}" == "monitor" ]]; then
 	crontab_monitor_ssr
 else
 	echo -e "
-          SSR-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 180808]${Font_color_suffix}
+          SSR-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 180813]${Font_color_suffix}
   ---- GitHub@ChennHaoo @hybtoy @ToyoDAdoubi @YihanH ----
  ${Tip} 本脚本为SSR-Panel后端一键搭建脚本，不适用于MuJSON多用户后端!!!!
  ${Tip} 安装位置：/usr/local/shadowsocksr
