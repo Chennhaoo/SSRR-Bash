@@ -390,8 +390,6 @@ Other_functions(){
 ———————————— 
   ${Green_font_prefix}9.${Font_color_suffix} 更新系统时间 
   ${Green_font_prefix}10.${Font_color_suffix} 更新软件 （谨慎操作）
-  ${Green_font_prefix}11.${Font_color_suffix} 优化系统文件打开数
-  ${Green_font_prefix}12.${Font_color_suffix} 定时重启SSR（防止内存爆炸） 
   " && echo
 	stty erase '^H' && read -p "(默认: 取消):" other_num
 	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
@@ -415,12 +413,8 @@ Other_functions(){
 		Sys_time
 	elif [[ ${other_num} == "10" ]]; then
 		Update_SYS	
-	elif [[ ${other_num} == "11" ]]; then
-		SYS_limits	
-	elif [[ ${other_num} == "12" ]]; then
-		Set_crontab_restart_ssr
 	else
-		echo -e "${Error} 请输入正确的数字 [1-12]" && exit 1
+		echo -e "${Error} 请输入正确的数字 [1-10]" && exit 1
 	fi
 }
 # BBR
@@ -765,115 +759,6 @@ Update_SYS(){
 		echo -e "${Info} 更新软件及系统完毕，请稍后自行重启 ！"
 	fi
 }
-#修改系统文件句柄数
-SYS_limits(){
-	if cat /etc/security/limits.conf | grep -q -E -i "* soft nofile 51200"; then
-		echo -e "${Error} 系统已包含此优化 !"
-	else
-        SYS_limits_a       
-	fi
-}
-
-SYS_limits_a(){
-cat >> /etc/security/limits.conf << EOF
-* soft nofile 51200
-* hard nofile 51200
-EOF
-ulimit -n 51200
-echo -e "${Info} 优化完毕"
-}
-
-#------------------------SSR定时重启开始
-#自动化SSR重启
-crontab_restart_ssr(){
-    echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] SSR定时重启脚本开始运行" | tee -a ${ssr_log_file}
-	SSR_installation_status
-	check_pid
-	if [[ -z ${PID} ]]; then
-		echo -e "Error [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 ShadowsocksR服务端 未运行 , 开始启动..." | tee -a ${ssr_log_file}
-		/etc/init.d/ssrmu start
-		sleep 5s
-		check_pid
-		if [[ -z ${PID} ]]; then
-			echo -e "Error [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端 启动失败..." | tee -a ${ssr_log_file} && exit 1
-		else
-			echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端 启动成功..." | tee -a ${ssr_log_file} && exit 1
-		fi
-	else
-        /etc/init.d/ssrmu stop
-        check_pid
-		if [[ -z ${PID} ]]; then        
-		    echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] SSR服务端停止运行 成功..." | tee -a ${ssr_log_file} 
-            /etc/init.d/ssrmu start
-            sleep 5s
-		    check_pid
-            if [[ -z ${PID} ]]; then
-                echo -e "Error [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 停止后启动失败..." | tee -a ${ssr_log_file} && exit 1
-            else
-                echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] SSR定时重启完毕..." | tee -a ${ssr_log_file} && exit 1
-            fi    
-        else
-            echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 服务端停止失败 SSR定时重启失败..." | tee -a ${ssr_log_file} && exit 1
-        fi
-	fi
-}
-
-#设置
-Set_crontab_restart_ssr(){
-	SSR_installation_status
-    echo && echo -e "设置后，每天凌晨2点重启SSR " 
-	crontab_restart_ssr_a=$(crontab -l|grep "ssrpa.sh restart_ssr")
-	if [[ -z "${crontab_restart_ssr_a}" ]]; then
-		echo && echo -e "SSR定时重启: ${Green_font_prefix}未开启${Font_color_suffix}" && echo
-		echo -e "确定要开启 ${Green_font_prefix}ShadowsocksR服务端定时重启${Font_color_suffix} 功能吗？(定时重启SSR服务端，防止内存泄漏)[Y/n]"
-		stty erase '^H' && read -p "(默认: y):" crontab_restart_ssr_ny
-		[[ -z "${crontab_restart_ssr_ny}" ]] && crontab_restart_ssr_ny="y"
-		if [[ ${crontab_restart_ssr_ny} == [Yy] ]]; then
-			crontab_restart_ssr_cron_start
-		else
-			echo && echo "	已取消..." && echo
-		fi
-	else
-		echo && echo -e "SSR定时重启: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
-		echo -e "确定要关闭 ${Green_font_prefix}ShadowsocksR服务端定时重启${Font_color_suffix} 功能吗？(定时重启SSR服务端，防止内存泄漏)[y/N]"
-		stty erase '^H' && read -p "(默认: n):" crontab_restart_ssr_ny
-		[[ -z "${crontab_restart_ssr_ny}" ]] && crontab_restart_ssr_ny="n"
-		if [[ ${crontab_restart_ssr_ny} == [Yy] ]]; then
-			crontab_restart_ssr_cron_stop
-		else
-			echo && echo "	已取消..." && echo
-		fi
-	fi
-}
-#开启SSR定时重启
-crontab_restart_ssr_cron_start(){
-	crontab -l > "$file/crontab.bak"
-	sed -i "/ssrpa.sh restart_ssr/d" "$file/crontab.bak"
-	echo -e "\n0 2 * * * /bin/bash $file/ssrpa.sh restart_ssr" >> "$file/crontab.bak"
-	crontab "$file/crontab.bak"
-	rm -r "$file/crontab.bak"
-	cron_config=$(crontab -l | grep "ssrpa.sh restart_ssr")
-	if [[ -z ${cron_config} ]]; then
-		echo -e "${Error} ShadowsocksR服务端定时重启功能 启动失败 !" && exit 1
-	else
-		echo -e "${Info} ShadowsocksR服务端定时重启功能 启动成功 !"
-	fi
-}
-#关闭SSR定时重启
-crontab_restart_ssr_cron_stop(){
-	crontab -l > "$file/crontab.bak"
-	sed -i "/ssrpa.sh restart_ssr/d" "$file/crontab.bak"
-	crontab "$file/crontab.bak"
-	rm -r "$file/crontab.bak"
-	cron_config=$(crontab -l | grep "ssrpa.sh restart_ssr")
-	if [[ ! -z ${cron_config} ]]; then
-		echo -e "${Error} ShadowsocksR服务端定时重启功能 停止失败 !" && exit 1
-	else
-		echo -e "${Info} ShadowsocksR服务端定时重启功能 停止成功 !"
-	fi
-}
-#------------------------SSR定时重启结束
-
 #------------------------------------------其他功能结束
 
 #------------------------------------------一键环境部署开始
@@ -883,8 +768,7 @@ echo -e "
  2.更新时间
  3.安装libsodium
  4.一键封禁BT
- 5.优化系统文件句柄数
- 6.安装BBR（OpenVZ不可用）
+ 5.安装BBR（OpenVZ不可用）
  ${Tip} 每一项可单独自行安装
  "
 	echo "1.确定更新系统吗 ？[y/N]" && echo
@@ -919,15 +803,7 @@ echo -e "
 	else
 		echo -e "${Info} 已跳过当前命令"
 	fi
-	echo "5.确定优化系统文件句柄数吗？[y/N]" && echo
-	stty erase '^H' && read -p "(默认: n):" unyn
-	if [[ ${unyn} == [Yy] ]]; then
-		SYS_limits
-		echo -e "${Info} 设置完毕"		
-	else
-		echo -e "${Info} 已跳过当前命令"
-	fi	
-	echo "6.确定安装BBR吗（OpenVZ不可用）？[y/N]" && echo
+	echo "5.确定安装BBR吗（OpenVZ不可用）？[y/N]" && echo
 	stty erase '^H' && read -p "(默认: n):" unyn
 	if [[ ${unyn} == [Yy] ]]; then
 		Configure_BBR
@@ -935,7 +811,6 @@ echo -e "
 	else
 		echo -e "${Info} 已跳过当前命令"
 	fi
-
 	echo -e "${Tip} 系统环境配置完毕"
 }
 #------------------------------------------一键环境部署结束
@@ -961,11 +836,9 @@ if [[ "${action}" == "clearall" ]]; then
 	Clear_transfer_all
 elif [[ "${action}" == "monitor" ]]; then
 	crontab_monitor_ssr
-elif [[ "${action}" == "restart_ssr" ]]; then
-	crontab_restart_ssr
 else
 	echo -e "
-          SS-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 180827]${Font_color_suffix}
+          SS-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 180813]${Font_color_suffix}
   ---- GitHub@ChennHaoo @hybtoy @ToyoDAdoubi @YihanH ----
  ${Tip} 本脚本为SS-Panel后端一键搭建脚本，不适用于MuJSON多用户后端!!!!
  ${Tip} 安装位置：/usr/local/shadowsocksr
