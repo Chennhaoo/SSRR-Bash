@@ -321,7 +321,7 @@ Uninstall_SSR(){
 		[[ ! -z "${PID}" ]] && kill -9 ${PID}
 		if [[ ! -z $(crontab -l | grep "ssrpa.sh") ]]; then
 			crontab_monitor_ssr_cron_stop
-			Clear_transfer_all_cron_stop
+			crontab_restart_ssr_cron_stop
 		fi
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del ssrmu
