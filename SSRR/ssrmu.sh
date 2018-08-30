@@ -923,11 +923,11 @@ JQ_install(){
 	if [[ ! -e ${jq_file} ]]; then
 		cd "${ssr_folder}"
 		if [[ ${bit} = "x86_64" ]]; then
+			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64" -O ${jq_file}
 			mv "jq-linux64" "jq"
-			#wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64" -O ${jq_file}
 		else
+			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux32" -O ${jq_file}
 			mv "jq-linux32" "jq"
-			#wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux32" -O ${jq_file}
 		fi
 		[[ ! -e ${jq_file} ]] && echo -e "${Error} JQ解析器 重命名失败，请检查 !" && exit 1
 		chmod +x ${jq_file}
@@ -1904,7 +1904,7 @@ if [[ "${action}" == "clearall" ]]; then
 elif [[ "${action}" == "monitor" ]]; then
 	crontab_monitor_ssr
 else
-	echo -e "  ShadowsocksRR MuJSON后端一键管理脚本 ${Green_font_prefix}[MOD_${sh_ver} 180805]${Font_color_suffix} 
+	echo -e "  ShadowsocksRR MuJSON后端一键管理脚本 ${Green_font_prefix}[MOD_${sh_ver} 180830]${Font_color_suffix} 
   ---- GitHub@ChennHaoo @hybtoy @ToyoDAdoubi @YihanH ----
   ${Tip} 安装位置：/usr/local/shadowsocksr
 
