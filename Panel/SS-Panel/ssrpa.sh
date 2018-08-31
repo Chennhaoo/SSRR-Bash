@@ -487,19 +487,29 @@ BBR_installation_status(){
 #BBR魔改版
 BBR-Pro(){
 	[[ ${release} = "centos" ]] && [[ ${release} = "ubuntu" ]] && echo -e "${Error} 本脚本不支持 CentOS/Ubuntu，请使用Debian7以上!" && exit 1
-	if [[ ! -e ${BBR_Pro_file} ]]; then
-		echo -e "${Error} 没有发现 BBR魔改版，开始下载..."
-		cd "${file}"
-		if ! wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/bbr-pro.sh; then
-			echo -e "${Error} BBR魔改版 脚本下载失败 !" && exit 1
+	echo -e "
+${Green_font_prefix} [安装前 请注意] ${Font_color_suffix}
+1. 安装开启BBR，需要更换内核，存在更换失败等风险(重启后无法开机)
+2. 本脚本仅支持 Debian KVM 系统更换内核，OpenVZ和Docker 不支持更换内核
+3. Debian 更换内核过程中会提示 [ 是否终止卸载内核 ] ，请选择 ${Green_font_prefix} NO ${Font_color_suffix}" && echo
+	stty erase '^H' && read -p "(默认: y):" BBR_ny
+	[[ -z "${BBR_ny}" ]] && BBR_ny="y"
+	if [[ ${BBR_ny} == [Yy] ]]; then
+		if [[ ! -e ${BBR_Pro_file} ]]; then
+			echo -e "${Error} 没有发现 BBR魔改版，开始下载..."
+			cd "${file}"
+			if ! wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/bbr-pro.sh; then
+				echo -e "${Error} BBR魔改版 脚本下载失败 !" && exit 1
+			else
+				echo -e "${Info} BBR魔改版 脚本下载完成 !"
+				chmod +x bbr-pro.sh && bash "${BBR_Pro_file}"
+			fi
 		else
-			echo -e "${Info} BBR魔改版 脚本下载完成 !"
-			chmod +x bbr-pro.sh
 			bash "${BBR_Pro_file}"
-		fi
+		fi	
 	else
-		bash "${BBR_Pro_file}"
-	fi	
+		echo -e "${Error} 已取消..." && exit 1
+	fi
 }
 
 # 锐速
@@ -987,9 +997,9 @@ elif [[ "${action}" == "restart_ssr" ]]; then
 	crontab_restart_ssr
 else
 	echo -e "
-          SS-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 180831]${Font_color_suffix}
+          SS-Panel 后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 180831]${Font_color_suffix}
   ---- GitHub@ChennHaoo @hybtoy @ToyoDAdoubi @YihanH ----
- ${Tip} 本脚本为SS-Panel后端一键搭建脚本，不适用于MuJSON多用户后端!!!!
+ ${Tip} 本脚本为 SS-Panel 后端一键搭建脚本，不适用于MuJSON多用户后端!!!!
  ${Tip} 安装位置：/usr/local/shadowsocksr
 
   ${Green_font_prefix}1.${Font_color_suffix} 安装 libsodium(chacha20 xchacha20)
