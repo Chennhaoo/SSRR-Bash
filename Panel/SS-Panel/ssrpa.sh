@@ -495,6 +495,7 @@ BBR-Pro(){
 		else
 			echo -e "${Info} BBR魔改版 脚本下载完成 !"
 			chmod +x bbr-pro.sh
+			bash "${BBR_Pro_file}"
 		fi
 	else
 		bash "${BBR_Pro_file}"
