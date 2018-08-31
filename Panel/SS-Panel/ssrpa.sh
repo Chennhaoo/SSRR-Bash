@@ -179,8 +179,8 @@ Installation_dependency(){
 	fi
 	[[ ! -e "/usr/bin/unzip" ]] && echo -e "${Error} 依赖 unzip(解压压缩包) 安装失败，多半是软件包源的问题，请检查 !" && exit 1
 	Check_python
-	#echo "nameserver 8.8.8.8" > /etc/resolv.conf
-	#echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+	echo "nameserver 8.8.8.8" > /etc/resolv.conf
+	echo "nameserver 1.1.1.1" >> /etc/resolv.conf
 	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 	if [[ ${release} == "centos" ]]; then
 		/etc/init.d/crond restart
@@ -489,7 +489,7 @@ BBR-Pro(){
 	[[ ${release} = "centos" ]] && [[ ${release} = "ubuntu" ]] && echo -e "${Error} 本脚本不支持 CentOS/Ubuntu，请使用Debian7以上!" && exit 1
 	echo -e "
 ${Green_font_prefix} [安装前 请注意] ${Font_color_suffix}
-1. 安装开启BBR，需要更换内核，存在更换失败等风险(重启后无法开机)
+1. 安装开启BBR魔改版，需要更换内核，存在更换失败等风险(重启后无法开机 注意保存资料)
 2. 本脚本仅支持 Debian KVM 系统更换内核，OpenVZ和Docker 不支持更换内核
 3. Debian 更换内核过程中会提示 [ 是否终止卸载内核 ] ，请选择 ${Green_font_prefix} NO ${Font_color_suffix}" && echo
 	stty erase '^H' && read -p "(默认: y):" BBR_ny
