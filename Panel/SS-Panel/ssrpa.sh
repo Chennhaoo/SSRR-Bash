@@ -959,7 +959,7 @@ echo -e "
 	else
 		echo -e "${Info} 已跳过当前命令"
 	fi	
-	echo "6.确定安装BBR吗（原版 OpenVZ不可用）？[y/N]" && echo
+	echo "6.确定安装原版BBR吗（若安装魔改版请跳过 OpenVZ不可用）？[y/N]" && echo
 	stty erase '^H' && read -p "(默认: n):" unyn
 	if [[ ${unyn} == [Yy] ]]; then
 		Configure_BBR
