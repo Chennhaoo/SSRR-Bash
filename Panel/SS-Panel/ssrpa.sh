@@ -709,24 +709,24 @@ crontab_monitor_ssr(){
 	SSR_installation_status
 	check_pid
 	if [[ -z ${PID} ]]; then
-		echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 ShadowsocksR服务端 未运行 , 开始启动..." | tee -a ${ssr_log_file}
+		echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] [掉线检测]检测到 ShadowsocksR服务端 未运行 , 开始启动..." | tee -a ${ssr_log_file}
 		/etc/init.d/ssrmu start
 		sleep 1s
 		check_pid
 		if [[ -z ${PID} ]]; then
-			echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端 启动失败..." | tee -a ${ssr_log_file} && exit 1
+			echo -e "${Error} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] [掉线检测]ShadowsocksR服务端 启动失败..." | tee -a ${ssr_log_file} && exit 1
 		else
-			echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端 启动成功..." | tee -a ${ssr_log_file} && exit 1
+			echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] [掉线检测]ShadowsocksR服务端 启动成功..." | tee -a ${ssr_log_file} && exit 1
 		fi
 	else
-		echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端 进程运行正常..." exit 0
+		echo -e "${Info} [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] [掉线检测]ShadowsocksR服务端 进程运行正常..." exit 0
 	fi
 }
 #开始SSR监控
 crontab_monitor_ssr_cron_start(){
 	crontab -l > "$file/crontab.bak"
 	sed -i "/ssrpa.sh monitor/d" "$file/crontab.bak"
-	echo -e "\n* * * * * /bin/bash $file/ssrpa.sh monitor" >> "$file/crontab.bak"
+	echo -e "\n*/2 * * * * /bin/bash $file/ssrpa.sh monitor" >> "$file/crontab.bak"
 	crontab "$file/crontab.bak"
 	rm -r "$file/crontab.bak"
 	cron_config=$(crontab -l | grep "ssrpa.sh monitor")
