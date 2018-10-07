@@ -28,6 +28,7 @@ LotServer_file="/appex/bin/serverSpeeder.sh"
 BBR_file="${file}/bbr.sh"
 jq_file="${ssr_folder}/jq"
 SSH_file="${file}/ssh_port.sh"
+BBR_Pro_file="${file}/bbr-pro.sh"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
@@ -178,8 +179,8 @@ Installation_dependency(){
 	fi
 	[[ ! -e "/usr/bin/unzip" ]] && echo -e "${Error} 依赖 unzip(解压压缩包) 安装失败，多半是软件包源的问题，请检查 !" && exit 1
 	Check_python
-	#echo "nameserver 8.8.8.8" > /etc/resolv.conf
-	#echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+	echo "nameserver 8.8.8.8" > /etc/resolv.conf
+	echo "nameserver 1.1.1.1" >> /etc/resolv.conf
 	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 	if [[ ${release} == "centos" ]]; then
 		/etc/init.d/crond restart
@@ -199,14 +200,14 @@ Download_SSR(){
 #SSR服务
 Service_SSR(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/ssrmu_centos -O /etc/init.d/ssrmu; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/ssrmu_centos -O /etc/init.d/ssrmu; then
 			echo -e "${Error} ShadowsocksR服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/ssrmu
 		chkconfig --add ssrmu
 		chkconfig ssrmu on
 	else
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/ssrmu_debian -O /etc/init.d/ssrmu; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/ssrmu_debian -O /etc/init.d/ssrmu; then
 			echo -e "${Error} ShadowsocksR服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/ssrmu
@@ -286,25 +287,13 @@ View_Log(){
 	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo
 	tail -f ${ssr_log_file}
 }
-#检查SSR更新
+#检查更新
 Update_SSR(){ 
-	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} 没有安装 ShadowsocksR，请检查 !" && exit 1
-	echo "
-	更新前请备份好配置文件
-	确定要 更新ShadowsocksR？[y/N]
-	" && echo
-	stty erase '^H' && read -p "(默认: n):" unyn
-	[[ -z ${unyn} ]] && unyn="n"
-	if [[ ${unyn} == [Yy] ]]; then
-		SSR_installation_status
-		echo -e "准备更新"
-		cd ${ssr_folder}
-		git pull
-		Restart_SSR
-		echo -e "更新完毕"
-	else
-		echo && echo " 已取消..." && echo
-	fi
+	echo -e "
+	进入SSR安装目录，查看readmeeeeeeeeeeeee.txt内容
+	前往 https://github.com/Chennhaoo/SSRR-Bash 查看是否有更新
+	若有更新请备份配置文件，删除SSR重装即可！
+	"
 }
 #卸载SSR
 Uninstall_SSR(){
@@ -317,14 +306,14 @@ Uninstall_SSR(){
 		[[ ! -z "${PID}" ]] && kill -9 ${PID}
 		if [[ ! -z $(crontab -l | grep "ssrpa.sh") ]]; then
 			crontab_monitor_ssr_cron_stop
-			Clear_transfer_all_cron_stop
+			crontab_restart_ssr_cron_stop
 		fi
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del ssrmu
 		else
 			update-rc.d -f ssrmu remove
 		fi
-		rm -rf ${ssr_folder} && rm -rf /etc/init.d/ssrmu && rm ${SSH_file} && rm ${BBR_file}
+		rm -rf ${ssr_folder} && rm -rf /etc/init.d/ssrmu && rm ${SSH_file} && rm ${BBR_file} && rm ${BBR_Pro_file}
 		echo && echo " ShadowsocksR 卸载完成 !" && echo
 	else
 		echo && echo " 卸载已取消..." && echo
@@ -367,50 +356,54 @@ Install_SSHPOR(){
 Other_functions(){
 	echo && echo -e "  你要做什么？
 	
-  ${Green_font_prefix}1.${Font_color_suffix} 配置 BBR
-  ${Green_font_prefix}2.${Font_color_suffix} 配置 锐速(ServerSpeeder)
-  ${Green_font_prefix}3.${Font_color_suffix} 配置 LotServer(锐速母公司)
+  ${Green_font_prefix}1.${Font_color_suffix} 配置 BBR (原版)
+  ${Green_font_prefix}2.${Font_color_suffix} 配置 BBR-Pro (南琴浪魔改版BBR 请先安装SSR程序) 
+  ${Green_font_prefix}3.${Font_color_suffix} 配置 锐速(ServerSpeeder)
+  ${Green_font_prefix}4.${Font_color_suffix} 配置 LotServer(锐速母公司)
   ${Tip} 锐速/LotServer/BBR 不支持 OpenVZ！
   ${Tip} 锐速和LotServer不能共存！
 ————————————
-  ${Green_font_prefix}4.${Font_color_suffix} 一键封禁 BT/PT/SPAM (iptables)
-  ${Green_font_prefix}5.${Font_color_suffix} 一键解封 BT/PT/SPAM (iptables)
+  ${Green_font_prefix}5.${Font_color_suffix} 一键封禁 BT/PT/SPAM (iptables)
+  ${Green_font_prefix}6.${Font_color_suffix} 一键解封 BT/PT/SPAM (iptables)
 ————————————
-  ${Green_font_prefix}6.${Font_color_suffix} 切换 ShadowsocksR日志输出模式
+  ${Green_font_prefix}7.${Font_color_suffix} 切换 ShadowsocksR日志输出模式
   —— 说明：SSR默认只输出错误日志，此项可切换为输出详细的访问日志。
-  ${Green_font_prefix}7.${Font_color_suffix} 监控 ShadowsocksR服务端运行状态
+  ${Green_font_prefix}8.${Font_color_suffix} 监控 ShadowsocksR服务端运行状态
   —— 说明：该功能适合于SSR服务端经常进程结束，启动该功能后会每分钟检测一次，当进程不存在则自动启动SSR服务端。
-————————————
-  ${Green_font_prefix}8.${Font_color_suffix} 更新软件源 
-  ${Tip} 仅支持Debian/Ubuntu系统 
 ———————————— 
   ${Green_font_prefix}9.${Font_color_suffix} 更新系统时间 
   ${Green_font_prefix}10.${Font_color_suffix} 更新软件 （谨慎操作）
+  ${Green_font_prefix}11.${Font_color_suffix} 优化系统文件打开数
+  ${Green_font_prefix}12.${Font_color_suffix} 定时重启SSR（防止内存爆炸） 
   " && echo
 	stty erase '^H' && read -p "(默认: 取消):" other_num
 	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
 	if [[ ${other_num} == "1" ]]; then
 		Configure_BBR
 	elif [[ ${other_num} == "2" ]]; then
-		Configure_Server_Speeder
+		BBR-Pro
 	elif [[ ${other_num} == "3" ]]; then
-		Configure_LotServer
+		Configure_Server_Speeder
 	elif [[ ${other_num} == "4" ]]; then
-		BanBTPTSPAM
+		Configure_LotServer
 	elif [[ ${other_num} == "5" ]]; then
-		UnBanBTPTSPAM
+		BanBTPTSPAM
 	elif [[ ${other_num} == "6" ]]; then
-		Set_config_connect_verbose_info
+		UnBanBTPTSPAM
 	elif [[ ${other_num} == "7" ]]; then
-		Set_crontab_monitor_ssr
+		Set_config_connect_verbose_info
 	elif [[ ${other_num} == "8" ]]; then
-		Update_YUAN	
+		Set_crontab_monitor_ssr
 	elif [[ ${other_num} == "9" ]]; then
 		Sys_time
 	elif [[ ${other_num} == "10" ]]; then
 		Update_SYS	
+	elif [[ ${other_num} == "11" ]]; then
+		SYS_limits	
+	elif [[ ${other_num} == "12" ]]; then
+		Set_crontab_restart_ssr
 	else
-		echo -e "${Error} 请输入正确的数字 [1-10]" && exit 1
+		echo -e "${Error} 请输入正确的数字 [1-12]" && exit 1
 	fi
 }
 # BBR
@@ -467,6 +460,34 @@ BBR_installation_status(){
 			echo -e "${Info} BBR 脚本下载完成 !"
 			chmod +x bbr.sh
 		fi
+	fi
+}
+
+#BBR魔改版
+BBR-Pro(){
+	[[ ${release} = "centos" ]] && [[ ${release} = "ubuntu" ]] && echo -e "${Error} 本脚本不支持 CentOS/Ubuntu，请使用Debian7以上!" && exit 1
+	echo -e "
+${Green_font_prefix} [安装前 请注意] ${Font_color_suffix}
+1. 安装开启BBR魔改版，需要更换内核，存在更换失败等风险(重启后无法开机 注意保存资料)
+2. 本脚本仅支持 Debian KVM 系统更换内核，OpenVZ和Docker 不支持更换内核
+3. Debian 更换内核过程中会提示 [ 是否终止卸载内核 ] ，请选择 ${Green_font_prefix} NO ${Font_color_suffix}" && echo
+	stty erase '^H' && read -p "(默认: y):" BBR_ny
+	[[ -z "${BBR_ny}" ]] && BBR_ny="y"
+	if [[ ${BBR_ny} == [Yy] ]]; then
+		if [[ ! -e ${BBR_Pro_file} ]]; then
+			echo -e "${Error} 没有发现 BBR魔改版，开始下载..."
+			cd "${file}"
+			if ! wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/bbr-pro.sh; then
+				echo -e "${Error} BBR魔改版 脚本下载失败 !" && exit 1
+			else
+				echo -e "${Info} BBR魔改版 脚本下载完成 !"
+				chmod +x bbr-pro.sh && bash "${BBR_Pro_file}"
+			fi
+		else
+			bash "${BBR_Pro_file}"
+		fi	
+	else
+		echo -e "${Error} 已取消..." && exit 1
 	fi
 }
 
@@ -714,13 +735,6 @@ crontab_monitor_ssr_cron_stop(){
 }
 #-----SSR监控
 
-#更新软件源
-Update_YUAN(){
-    [[ ${release} = "centos" ]] && echo -e "${Error} 此命令只支持Debian/Ubuntu !" && exit 1
-	echo -e "${Info} 开始更新软件源...."
-	apt-get update
-	echo -e "${Info} 软件源更新完毕！"	
-}
 #修改系统时间
 Sys_time(){
 	echo -e "${Info} 开始同步系统时间...."
@@ -755,6 +769,115 @@ Update_SYS(){
 		echo -e "${Info} 更新软件及系统完毕，请稍后自行重启 ！"
 	fi
 }
+#修改系统文件句柄数
+SYS_limits(){
+	if cat /etc/security/limits.conf | grep -q -E -i "* soft nofile 51200"; then
+		echo -e "${Error} 系统已包含此优化 !"
+	else
+        SYS_limits_a       
+	fi
+}
+
+SYS_limits_a(){
+cat >> /etc/security/limits.conf << EOF
+* soft nofile 51200
+* hard nofile 51200
+EOF
+ulimit -n 51200
+echo -e "${Info} 优化完毕"
+}
+
+#------------------------SSR定时重启开始
+#自动化SSR重启
+crontab_restart_ssr(){
+    echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] SSR定时重启脚本开始运行" | tee -a ${ssr_log_file}
+	SSR_installation_status
+	check_pid
+	if [[ -z ${PID} ]]; then
+		echo -e "Error [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 ShadowsocksR服务端 未运行 , 开始启动..." | tee -a ${ssr_log_file}
+		/etc/init.d/ssrmu start
+		sleep 5s
+		check_pid
+		if [[ -z ${PID} ]]; then
+			echo -e "Error [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端 启动失败..." | tee -a ${ssr_log_file} && exit 1
+		else
+			echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端 启动成功..." | tee -a ${ssr_log_file} && exit 1
+		fi
+	else
+        /etc/init.d/ssrmu stop
+        check_pid
+		if [[ -z ${PID} ]]; then        
+		    echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] SSR服务端停止运行 成功..." | tee -a ${ssr_log_file} 
+            /etc/init.d/ssrmu start
+            sleep 5s
+		    check_pid
+            if [[ -z ${PID} ]]; then
+                echo -e "Error [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 停止后启动失败..." | tee -a ${ssr_log_file} && exit 1
+            else
+                echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] SSR定时重启完毕..." | tee -a ${ssr_log_file} && exit 1
+            fi    
+        else
+            echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 服务端停止失败 SSR定时重启失败..." | tee -a ${ssr_log_file} && exit 1
+        fi
+	fi
+}
+
+#设置
+Set_crontab_restart_ssr(){
+	SSR_installation_status
+    echo && echo -e "设置后，每天凌晨5点重启SSR " 
+	crontab_restart_ssr_a=$(crontab -l|grep "ssrpa.sh restart_ssr")
+	if [[ -z "${crontab_restart_ssr_a}" ]]; then
+		echo && echo -e "SSR定时重启: ${Green_font_prefix}未开启${Font_color_suffix}" && echo
+		echo -e "确定要开启 ${Green_font_prefix}ShadowsocksR服务端定时重启${Font_color_suffix} 功能吗？(定时重启SSR服务端，防止内存泄漏)[Y/n]"
+		stty erase '^H' && read -p "(默认: y):" crontab_restart_ssr_ny
+		[[ -z "${crontab_restart_ssr_ny}" ]] && crontab_restart_ssr_ny="y"
+		if [[ ${crontab_restart_ssr_ny} == [Yy] ]]; then
+			crontab_restart_ssr_cron_start
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	else
+		echo && echo -e "SSR定时重启: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
+		echo -e "确定要关闭 ${Green_font_prefix}ShadowsocksR服务端定时重启${Font_color_suffix} 功能吗？(定时重启SSR服务端，防止内存泄漏)[y/N]"
+		stty erase '^H' && read -p "(默认: n):" crontab_restart_ssr_ny
+		[[ -z "${crontab_restart_ssr_ny}" ]] && crontab_restart_ssr_ny="n"
+		if [[ ${crontab_restart_ssr_ny} == [Yy] ]]; then
+			crontab_restart_ssr_cron_stop
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	fi
+}
+#开启SSR定时重启
+crontab_restart_ssr_cron_start(){
+	crontab -l > "$file/crontab.bak"
+	sed -i "/ssrpa.sh restart_ssr/d" "$file/crontab.bak"  #删除ssrpa.sh restart_ssr这一行
+	echo -e "\n0 5 * * * /bin/bash $file/ssrpa.sh restart_ssr" >> "$file/crontab.bak"
+	crontab "$file/crontab.bak"
+	rm -r "$file/crontab.bak"
+	cron_config=$(crontab -l | grep "ssrpa.sh restart_ssr")
+	if [[ -z ${cron_config} ]]; then
+		echo -e "${Error} ShadowsocksR服务端定时重启功能 启动失败 !" && exit 1
+	else
+		echo -e "${Info} ShadowsocksR服务端定时重启功能 启动成功 !"
+	fi
+}
+#关闭SSR定时重启
+crontab_restart_ssr_cron_stop(){
+	crontab -l > "$file/crontab.bak"
+	sed -i "/ssrpa.sh restart_ssr/d" "$file/crontab.bak"
+	crontab "$file/crontab.bak"
+	rm -r "$file/crontab.bak"
+	cron_config=$(crontab -l | grep "ssrpa.sh restart_ssr")
+	if [[ ! -z ${cron_config} ]]; then
+		echo -e "${Error} ShadowsocksR服务端定时重启功能 停止失败 !" && exit 1
+	else
+		echo -e "${Info} ShadowsocksR服务端定时重启功能 停止成功 !"
+	fi
+}
+#------------------------SSR定时重启结束
+
 #------------------------------------------其他功能结束
 
 #------------------------------------------一键环境部署开始
@@ -764,7 +887,8 @@ echo -e "
  2.更新时间
  3.安装libsodium
  4.一键封禁BT
- 5.安装BBR（OpenVZ不可用）
+ 5.优化系统文件句柄数
+ 6.安装BBR（原版 / OpenVZ不可用）
  ${Tip} 每一项可单独自行安装
  "
 	echo "1.确定更新系统吗 ？[y/N]" && echo
@@ -799,7 +923,15 @@ echo -e "
 	else
 		echo -e "${Info} 已跳过当前命令"
 	fi
-	echo "5.确定安装BBR吗（OpenVZ不可用）？[y/N]" && echo
+	echo "5.确定优化系统文件句柄数吗？[y/N]" && echo
+	stty erase '^H' && read -p "(默认: n):" unyn
+	if [[ ${unyn} == [Yy] ]]; then
+		SYS_limits
+		echo -e "${Info} 设置完毕"		
+	else
+		echo -e "${Info} 已跳过当前命令"
+	fi	
+	echo "6.确定安装原版BBR吗（若安装魔改版请跳过 OpenVZ不可用）？[y/N]" && echo
 	stty erase '^H' && read -p "(默认: n):" unyn
 	if [[ ${unyn} == [Yy] ]]; then
 		Configure_BBR
@@ -807,7 +939,8 @@ echo -e "
 	else
 		echo -e "${Info} 已跳过当前命令"
 	fi
-	echo -e "${Tip} 系统环境配置完毕"
+
+	echo -e "${Tip} 系统环境配置完毕，请安装SSR主程序。"
 }
 #------------------------------------------一键环境部署结束
 
@@ -832,9 +965,11 @@ if [[ "${action}" == "clearall" ]]; then
 	Clear_transfer_all
 elif [[ "${action}" == "monitor" ]]; then
 	crontab_monitor_ssr
+elif [[ "${action}" == "restart_ssr" ]]; then
+	crontab_restart_ssr
 else
 	echo -e "
-          SSR-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 180813]${Font_color_suffix}
+          SSR-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 181007]${Font_color_suffix}
   ---- GitHub@ChennHaoo @hybtoy @ToyoDAdoubi @YihanH ----
  ${Tip} 本脚本为SSR-Panel后端一键搭建脚本，不适用于MuJSON多用户后端!!!!
  ${Tip} 安装位置：/usr/local/shadowsocksr
@@ -849,7 +984,7 @@ else
   ${Green_font_prefix}7.${Font_color_suffix} 重启 ShadowsocksR
   ${Green_font_prefix}8.${Font_color_suffix} 查看 ShadowsocksR 日志
 ————————————
-  ${Green_font_prefix}9.${Font_color_suffix} 修改SSH端口 （如有宝塔面板，不建议在此修改）
+  ${Green_font_prefix}9.${Font_color_suffix} 修改SSH端口 （若有宝塔面板，不建议在此修改）
   ${Green_font_prefix}10.${Font_color_suffix} 一键环境部署
   ${Green_font_prefix}11.${Font_color_suffix} 其他功能
  "
