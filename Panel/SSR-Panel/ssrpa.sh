@@ -166,8 +166,6 @@ Install_SSR(){
 	Service_SSR
 	echo -e "${Info} 安装JQ解析器"
 	JQ_install
-	echo -e "${Info} 安装Cymysql"
-	Cymysql_install
 	menu_status
 }
 # 安装 依赖
@@ -191,8 +189,14 @@ Installation_dependency(){
 # 下载 ShadowsocksR
 Download_SSR(){
 	cd "/usr/local"
-	git clone https://github.com/ssrpanel/shadowsocksr.git
-	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR服务端 下载失败 !" && exit 1
+	echo -e "${Info} 开始下载SSR"
+	wget -N --no-check-certificate "https://github.com/pch18/shadowsocksr/archive/master.zip"
+	[[ ! -e "master.zip" ]] && echo -e "${Error} ShadowsocksR服务端 压缩包 下载失败 !" && rm -rf master.zip && exit 1
+	unzip "master.zip"
+	[[ ! -e "/usr/local/shadowsocksr-master/" ]] && echo -e "${Error} ShadowsocksR服务端 解压失败 !" && rm -rf master.zip && exit 1
+	mv "/usr/local/shadowsocksr-master/" "/usr/local/shadowsocksr/"
+	[[ ! -e "/usr/local/shadowsocksr/" ]] && echo -e "${Error} ShadowsocksR服务端 重命名失败 !" && rm -rf master.zip &&  rm -rf "/usr/local/shadowsocksr-master/" && exit 1	
+	rm -rf master.zip
 	cd "shadowsocksr"
     sed -i 's/ \/\/ only works under multi-user mode//g' "${config_user_file}"
 	echo -e "${Info} ShadowsocksR服务端 下载完成 !"
@@ -231,34 +235,6 @@ JQ_install(){
 		echo -e "${Info} JQ解析器 已安装，继续..."
 	fi
 }
-#安装Cymysql
-Cymysql_install(){
-	echo && echo -e "  请根据MYSQL版本安装Cymysql
-	
- 	${Green_font_prefix}1.${Font_color_suffix} 5.5及以下
- 	${Green_font_prefix}2.${Font_color_suffix} 5.6及以上" && echo
-	stty erase '^H' && read -p "(默认: 取消):" num
-	[[ -z "${num}" ]] && echo "已取消..." && exit 1
-	if [[ ${num} == "1" ]]; then
-		cd "${ssr_folder}"
-		rm -rf CyMySQL
-		rm -rf cymysql
-		wget https://github.com/nakagami/CyMySQL/archive/REL_0_9_4.tar.gz
-		tar zxvf REL_0_9_4.tar.gz
-		mv CyMySQL-REL_0_9_4/cymysql/ ./
-		rm REL_0_9_4.tar.gz
-		rm -rf CyMySQL-REL_0_9_4/
-	elif [[ ${num} == "2" ]]; then
-		cd "${ssr_folder}"
-		rm -rf CyMySQL
-		rm -rf cymysql
-		git clone https://github.com/nakagami/CyMySQL.git
-		mv CyMySQL/cymysql ./
-		rm -rf CyMySQL
-	else
-		echo -e "${Error} 请输入正确的数字(1-2)" && exit 1
-	fi
-}
 #启动SSR
 Start_SSR(){
 	SSR_installation_status
@@ -290,8 +266,7 @@ View_Log(){
 #检查更新
 Update_SSR(){ 
 	echo -e "
-	进入SSR安装目录，查看readmeeeeeeeeeeeee.txt内容
-	前往 https://github.com/Chennhaoo/SSRR-Bash 查看是否有更新
+	前往 https://github.com/ssrpanel/shadowsocksr 查看是否有更新
 	若有更新请备份配置文件，删除SSR重装即可！
 	"
 }
@@ -969,7 +944,7 @@ elif [[ "${action}" == "restart_ssr" ]]; then
 	crontab_restart_ssr
 else
 	echo -e "
-          SSR-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 181007]${Font_color_suffix}
+          SSR-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 181029]${Font_color_suffix}
   ---- GitHub@ChennHaoo @hybtoy @ToyoDAdoubi @YihanH ----
  ${Tip} 本脚本为SSR-Panel后端一键搭建脚本，不适用于MuJSON多用户后端!!!!
  ${Tip} 安装位置：/usr/local/shadowsocksr
