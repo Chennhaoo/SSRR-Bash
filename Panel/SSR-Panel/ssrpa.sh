@@ -190,7 +190,7 @@ Installation_dependency(){
 Download_SSR(){
 	cd "/usr/local"
 	echo -e "${Info} 开始下载SSR"
-	wget -N --no-check-certificate "https://github.com/pch18/shadowsocksr/archive/master.zip"
+	wget -N --no-check-certificate "https://github.com/ssrpanel/shadowsocksr/archive/master.zip"
 	[[ ! -e "master.zip" ]] && echo -e "${Error} ShadowsocksR服务端 压缩包 下载失败 !" && rm -rf master.zip && exit 1
 	unzip "master.zip"
 	[[ ! -e "/usr/local/shadowsocksr-master/" ]] && echo -e "${Error} ShadowsocksR服务端 解压失败 !" && rm -rf master.zip && exit 1
@@ -344,7 +344,7 @@ Other_functions(){
   ${Green_font_prefix}7.${Font_color_suffix} 切换 ShadowsocksR日志输出模式
   —— 说明：SSR默认只输出错误日志，此项可切换为输出详细的访问日志。
   ${Green_font_prefix}8.${Font_color_suffix} 监控 ShadowsocksR服务端运行状态
-  —— 说明：该功能适合于SSR服务端经常进程结束，启动该功能后会每分钟检测一次，当进程不存在则自动启动SSR服务端。
+  —— 说明：该功能适合于SSR服务端经常进程结束，启动该功能后会每2分钟检测一次，当进程不存在则自动启动SSR服务端。
 ———————————— 
   ${Green_font_prefix}9.${Font_color_suffix} 更新系统时间 
   ${Green_font_prefix}10.${Font_color_suffix} 更新软件 （谨慎操作）
@@ -944,7 +944,7 @@ elif [[ "${action}" == "restart_ssr" ]]; then
 	crontab_restart_ssr
 else
 	echo -e "
-          SSR-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 181029]${Font_color_suffix}
+          SSR-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 181111]${Font_color_suffix}
   ---- GitHub@ChennHaoo @hybtoy @ToyoDAdoubi @YihanH ----
  ${Tip} 本脚本为SSR-Panel后端一键搭建脚本，不适用于MuJSON多用户后端!!!!
  ${Tip} 安装位置：/usr/local/shadowsocksr
