@@ -166,6 +166,8 @@ Install_SSR(){
 	Service_SSR
 	echo -e "${Info} 安装JQ解析器"
 	JQ_install
+	echo -e "${Info} 安装Cymysql"
+	Cymysql_install
 	menu_status
 }
 # 安装 依赖
@@ -190,28 +192,38 @@ Installation_dependency(){
 Download_SSR(){
 	cd "/usr/local"
 	echo -e "${Info} 开始下载SSR"
-	wget -N --no-check-certificate "https://github.com/ssrpanel/shadowsocksr/archive/master.zip"
-	[[ ! -e "master.zip" ]] && echo -e "${Error} ShadowsocksR服务端 压缩包 下载失败 !" && rm -rf master.zip && exit 1
-	unzip "master.zip"
-	[[ ! -e "/usr/local/shadowsocksr-master/" ]] && echo -e "${Error} ShadowsocksR服务端 解压失败 !" && rm -rf master.zip && exit 1
-	mv "/usr/local/shadowsocksr-master/" "/usr/local/shadowsocksr/"
-	[[ ! -e "/usr/local/shadowsocksr/" ]] && echo -e "${Error} ShadowsocksR服务端 重命名失败 !" && rm -rf master.zip &&  rm -rf "/usr/local/shadowsocksr-master/" && exit 1	
-	rm -rf master.zip
+	wget -N --no-check-certificate "https://github.com/Chennhaoo/SSRR-Bash/raw/master/Panel/SS-Panel/SS-Panel.zip"
+	[[ ! -e "SS-Panel.zip" ]] && echo -e "${Error} ShadowsocksR服务端 压缩包 下载失败 !" && rm -rf SS-Panel.zip && exit 1
+	unzip "SS-Panel.zip"
+	[[ ! -e "/usr/local/SS-Panel/" ]] && echo -e "${Error} ShadowsocksR服务端 解压失败 !" && rm -rf SS-Panel.zip && exit 1
+	mv "/usr/local/SS-Panel/" "/usr/local/shadowsocksr/"
+	[[ ! -e "/usr/local/shadowsocksr/" ]] && echo -e "${Error} ShadowsocksR服务端 重命名失败 !" && rm -rf SS-Panel.zip &&  rm -rf "/usr/local/SS-Panel/" && exit 1	
+	rm -rf SS-Panel.zip
 	cd "shadowsocksr"
-    sed -i 's/ \/\/ only works under multi-user mode//g' "${config_user_file}"
+	echo -e "${Info} PIP插件安装"
+	if [[ ${release} = "centos" ]]; then
+		yum install epel-release -y && yum makecache
+		yum install python-pip -y
+		pip install --upgrade pip
+		pip install -r requirements.txt
+	else
+		apt install python-setuptools python-pip build-essential -y
+		python -m pip install --upgrade pip
+		python -m pip install -r requirements.txt		
+	fi
 	echo -e "${Info} ShadowsocksR服务端 下载完成 !"
 }
 #SSR服务
 Service_SSR(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/SSR_Sever/ssrmu_centos -O /etc/init.d/ssrmu; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/ssrmu_centos -O /etc/init.d/ssrmu; then
 			echo -e "${Error} ShadowsocksR服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/ssrmu
 		chkconfig --add ssrmu
 		chkconfig ssrmu on
 	else
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/SSR_Sever/ssrmu_debian -O /etc/init.d/ssrmu; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/ssrmu_debian -O /etc/init.d/ssrmu; then
 			echo -e "${Error} ShadowsocksR服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/ssrmu
@@ -233,6 +245,34 @@ JQ_install(){
 		echo -e "${Info} JQ解析器 安装完成，继续..." 
 	else
 		echo -e "${Info} JQ解析器 已安装，继续..."
+	fi
+}
+#安装Cymysql
+Cymysql_install(){
+	echo && echo -e "  请根据MYSQL版本安装Cymysql
+	
+ 	${Green_font_prefix}1.${Font_color_suffix} 5.5及以下
+ 	${Green_font_prefix}2.${Font_color_suffix} 5.6及以上" && echo
+	stty erase '^H' && read -p "(默认: 取消):" num
+	[[ -z "${num}" ]] && echo "已取消..." && exit 1
+	if [[ ${num} == "1" ]]; then
+		cd "${ssr_folder}"
+		rm -rf CyMySQL
+		rm -rf cymysql
+		wget https://github.com/nakagami/CyMySQL/archive/REL_0_9_4.tar.gz
+		tar zxvf REL_0_9_4.tar.gz
+		mv CyMySQL-REL_0_9_4/cymysql/ ./
+		rm REL_0_9_4.tar.gz
+		rm -rf CyMySQL-REL_0_9_4/
+	elif [[ ${num} == "2" ]]; then
+		cd "${ssr_folder}"
+		rm -rf CyMySQL
+		rm -rf cymysql
+		git clone https://github.com/nakagami/CyMySQL.git
+		mv CyMySQL/cymysql ./
+		rm -rf CyMySQL
+	else
+		echo -e "${Error} 请输入正确的数字(1-2)" && exit 1
 	fi
 }
 #启动SSR
@@ -266,7 +306,8 @@ View_Log(){
 #检查更新
 Update_SSR(){ 
 	echo -e "
-	前往 https://github.com/ssrpanel/shadowsocksr 查看是否有更新
+	进入SSR安装目录，查看readmeeeeeeeeeeeee.txt内容
+	前往 https://github.com/Chennhaoo/SSRR-Bash 查看是否有更新
 	若有更新请备份配置文件，删除SSR重装即可！
 	"
 }
@@ -312,7 +353,7 @@ Install_SSHPOR(){
 		if [[ ! -e ${SSH_file} ]]; then
 			echo -e "${Error} 没有发现 SSH修改端口脚本，开始下载..."
 			cd "${file}"
-			if ! wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/ssh_port.sh; then
+			if ! wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssh_port.sh; then
 				echo -e "${Error} SSH 修改端口脚本下载失败 !" && exit 1
 			else
 				echo -e "${Info} SSH 修改端口脚本下载完成 !"
@@ -429,7 +470,7 @@ BBR_installation_status(){
 	if [[ ! -e ${BBR_file} ]]; then
 		echo -e "${Error} 没有发现 BBR脚本，开始下载..."
 		cd "${file}"
-		if ! wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/bbr.sh; then
+		if ! wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/bbr.sh; then
 			echo -e "${Error} BBR 脚本下载失败 !" && exit 1
 		else
 			echo -e "${Info} BBR 脚本下载完成 !"
@@ -629,12 +670,12 @@ Modify_config_connect_verbose_info(){
 
 # 封禁 BT PT SPAM
 BanBTPTSPAM(){
-	wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh banall
+	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh banall
 	rm -rf ban_iptables.sh
 }
 # 解封 BT PT SPAM
 UnBanBTPTSPAM(){
-	wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh unbanall
+	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh unbanall
 	rm -rf ban_iptables.sh
 }
 
@@ -944,9 +985,9 @@ elif [[ "${action}" == "restart_ssr" ]]; then
 	crontab_restart_ssr
 else
 	echo -e "
-          SSR-Panel后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 181124]${Font_color_suffix}
+          SS-Panel 后端管理脚本${Green_font_prefix}[MOD_${sh_ver} 181111]${Font_color_suffix}
   ---- GitHub@ChennHaoo @hybtoy @ToyoDAdoubi @YihanH ----
- ${Tip} 本脚本为SSR-Panel后端一键搭建脚本，不适用于MuJSON多用户后端!!!!
+ ${Tip} 本脚本为 SS-Panel 后端一键搭建脚本，不适用于MuJSON多用户后端!!!!
  ${Tip} 安装位置：/usr/local/shadowsocksr
 
   ${Green_font_prefix}1.${Font_color_suffix} 安装 libsodium(chacha20 xchacha20)
