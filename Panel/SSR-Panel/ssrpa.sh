@@ -235,6 +235,34 @@ JQ_install(){
 		echo -e "${Info} JQ解析器 已安装，继续..."
 	fi
 }
+#安装Cymysql
+Cymysql_install(){
+	echo && echo -e "  请根据MYSQL版本安装Cymysql
+	
+ 	${Green_font_prefix}1.${Font_color_suffix} 5.5及以下
+ 	${Green_font_prefix}2.${Font_color_suffix} 5.6及以上" && echo
+	stty erase '^H' && read -p "(默认: 取消):" num
+	[[ -z "${num}" ]] && echo "已取消..." && exit 1
+	if [[ ${num} == "1" ]]; then
+		cd "${ssr_folder}"
+		rm -rf CyMySQL
+		rm -rf cymysql
+		wget https://github.com/nakagami/CyMySQL/archive/REL_0_9_4.tar.gz
+		tar zxvf REL_0_9_4.tar.gz
+		mv CyMySQL-REL_0_9_4/cymysql/ ./
+		rm REL_0_9_4.tar.gz
+		rm -rf CyMySQL-REL_0_9_4/
+	elif [[ ${num} == "2" ]]; then
+		cd "${ssr_folder}"
+		rm -rf CyMySQL
+		rm -rf cymysql
+		git clone https://github.com/nakagami/CyMySQL.git
+		mv CyMySQL/cymysql ./
+		rm -rf CyMySQL
+	else
+		echo -e "${Error} 请输入正确的数字(1-2)" && exit 1
+	fi
+}
 #启动SSR
 Start_SSR(){
 	SSR_installation_status
