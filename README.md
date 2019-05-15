@@ -6,8 +6,8 @@
 使用：
 -----
 
-ShadowsocksR mudbjson server版：<br>
-`wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/SSRR/ssrmu.sh && chmod +x ssrmu.sh && bash ssrmu.sh`
+ShadowsocksR 多用户版版：<br>
+`wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/SSR/ssrmu.sh && chmod +x ssrmu.sh && bash ssrmu.sh`
 
 
 SS-Panel后端版：<br>
