@@ -6,7 +6,7 @@
 使用：
 -----
 
-ShadowsocksR 多用户版版：<br>
+ShadowsocksR 多用户版：<br>
 `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/SSR/ssrmu.sh && chmod +x ssrmu.sh && bash ssrmu.sh`
 
 

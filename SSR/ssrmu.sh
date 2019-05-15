@@ -10,7 +10,7 @@ export PATH
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="MOD_1.0.26"
+sh_ver="MOD_1.0.26 190515-2"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -21,10 +21,8 @@ config_user_mudb_file="${ssr_folder}/mudb.json"
 ssr_log_file="${ssr_folder}/ssserver.log"
 Libsodiumr_file="/usr/local/lib/libsodium.so"
 Libsodiumr_ver_backup="1.0.15"
-Server_Speeder_file="/serverspeeder/bin/serverSpeeder.sh"
-LotServer_file="/appex/bin/serverSpeeder.sh"
-BBR_file="${file}/bbr.sh"
 jq_file="${ssr_folder}/jq"
+vps_tools_file="${file}/vpstools.sh"
 
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
 Info="${Green_font_prefix}[信息]${Font_color_suffix}"
@@ -833,10 +831,7 @@ Debian_apt(){
 # 下载 ShadowsocksR
 Download_SSR(){
 	cd "/usr/local"
-	wget -N --no-check-certificate "https://github.com/ToyoDAdoubiBackup/shadowsocksr/archive/manyuser.zip"
-	#git config --global http.sslVerify false
-	#env GIT_SSL_NO_VERIFY=true git clone -b manyuser https://github.com/ToyoDAdoubiBackup/shadowsocksr.git
-	#[[ ! -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR服务端 下载失败 !" && exit 1
+	wget -N --no-check-certificate "https://github.com/Chennhaoo/SSRR-Bash/raw/master/SSR/Sever/shadowsocksr-manyuser.zip"
 	[[ ! -e "manyuser.zip" ]] && echo -e "${Error} ShadowsocksR服务端 压缩包 下载失败 !" && rm -rf manyuser.zip && exit 1
 	unzip "manyuser.zip"
 	[[ ! -e "/usr/local/shadowsocksr-manyuser/" ]] && echo -e "${Error} ShadowsocksR服务端 解压失败 !" && rm -rf manyuser.zip && exit 1
@@ -857,14 +852,14 @@ Download_SSR(){
 }
 Service_SSR(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubiBackup/doubi/master/service/ssrmu_centos -O /etc/init.d/ssrmu; then
+		if ! wget --no-check-certificate https://github.com/Chennhaoo/Shell_Bash/raw/master/Sever/ssrmu_centos -O /etc/init.d/ssrmu; then
 			echo -e "${Error} ShadowsocksR服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/ssrmu
 		chkconfig --add ssrmu
 		chkconfig ssrmu on
 	else
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubiBackup/doubi/master/service/ssrmu_debian -O /etc/init.d/ssrmu; then
+		if ! wget --no-check-certificate https://github.com/Chennhaoo/Shell_Bash/raw/master/Sever/ssrmu_debian -O /etc/init.d/ssrmu; then
 			echo -e "${Error} ShadowsocksR服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/ssrmu
@@ -963,6 +958,7 @@ Uninstall_SSR(){
 		if [[ ! -z $(crontab -l | grep "ssrmu.sh") ]]; then
 			crontab_monitor_ssr_cron_stop
 			Clear_transfer_all_cron_stop
+			crontab_restart_ssr_cron_stop
 		fi
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del ssrmu
@@ -1436,221 +1432,121 @@ View_Log(){
 	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${ssr_log_file}${Font_color_suffix} 命令。" && echo
 	tail -f ${ssr_log_file}
 }
-# 锐速
-Configure_Server_Speeder(){
-	echo && echo -e "你要做什么？
- ${Green_font_prefix}1.${Font_color_suffix} 安装 锐速
- ${Green_font_prefix}2.${Font_color_suffix} 卸载 锐速
-————————
- ${Green_font_prefix}3.${Font_color_suffix} 启动 锐速
- ${Green_font_prefix}4.${Font_color_suffix} 停止 锐速
- ${Green_font_prefix}5.${Font_color_suffix} 重启 锐速
- ${Green_font_prefix}6.${Font_color_suffix} 查看 锐速 状态
- 
- 注意： 锐速和LotServer不能同时安装/启动！" && echo
-	read -e -p "(默认: 取消):" server_speeder_num
-	[[ -z "${server_speeder_num}" ]] && echo "已取消..." && exit 1
-	if [[ ${server_speeder_num} == "1" ]]; then
-		Install_ServerSpeeder
-	elif [[ ${server_speeder_num} == "2" ]]; then
-		Server_Speeder_installation_status
-		Uninstall_ServerSpeeder
-	elif [[ ${server_speeder_num} == "3" ]]; then
-		Server_Speeder_installation_status
-		${Server_Speeder_file} start
-		${Server_Speeder_file} status
-	elif [[ ${server_speeder_num} == "4" ]]; then
-		Server_Speeder_installation_status
-		${Server_Speeder_file} stop
-	elif [[ ${server_speeder_num} == "5" ]]; then
-		Server_Speeder_installation_status
-		${Server_Speeder_file} restart
-		${Server_Speeder_file} status
-	elif [[ ${server_speeder_num} == "6" ]]; then
-		Server_Speeder_installation_status
-		${Server_Speeder_file} status
-	else
-		echo -e "${Error} 请输入正确的数字(1-6)" && exit 1
-	fi
-}
-Install_ServerSpeeder(){
-	[[ -e ${Server_Speeder_file} ]] && echo -e "${Error} 锐速(Server Speeder) 已安装 !" && exit 1
-	#借用91yun.rog的开心版锐速
-	wget --no-check-certificate -qO /tmp/serverspeeder.sh https://raw.githubusercontent.com/91yun/serverspeeder/master/serverspeeder.sh
-	[[ ! -e "/tmp/serverspeeder.sh" ]] && echo -e "${Error} 锐速安装脚本下载失败 !" && exit 1
-	bash /tmp/serverspeeder.sh
-	sleep 2s
-	PID=`ps -ef |grep -v grep |grep "serverspeeder" |awk '{print $2}'`
-	if [[ ! -z ${PID} ]]; then
-		rm -rf /tmp/serverspeeder.sh
-		rm -rf /tmp/91yunserverspeeder
-		rm -rf /tmp/91yunserverspeeder.tar.gz
-		echo -e "${Info} 锐速(Server Speeder) 安装完成 !" && exit 1
-	else
-		echo -e "${Error} 锐速(Server Speeder) 安装失败 !" && exit 1
-	fi
-}
-Uninstall_ServerSpeeder(){
-	echo "确定要卸载 锐速(Server Speeder)？[y/N]" && echo
-	read -e -p "(默认: n):" unyn
-	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
-	if [[ ${unyn} == [Yy] ]]; then
-		chattr -i /serverspeeder/etc/apx*
-		/serverspeeder/bin/serverSpeeder.sh uninstall -f
-		echo && echo "锐速(Server Speeder) 卸载完成 !" && echo
-	fi
-}
-# LotServer
-Configure_LotServer(){
-	echo && echo -e "你要做什么？
- ${Green_font_prefix}1.${Font_color_suffix} 安装 LotServer
- ${Green_font_prefix}2.${Font_color_suffix} 卸载 LotServer
-————————
- ${Green_font_prefix}3.${Font_color_suffix} 启动 LotServer
- ${Green_font_prefix}4.${Font_color_suffix} 停止 LotServer
- ${Green_font_prefix}5.${Font_color_suffix} 重启 LotServer
- ${Green_font_prefix}6.${Font_color_suffix} 查看 LotServer 状态
- 
- 注意： 锐速和LotServer不能同时安装/启动！" && echo
-	read -e -p "(默认: 取消):" lotserver_num
-	[[ -z "${lotserver_num}" ]] && echo "已取消..." && exit 1
-	if [[ ${lotserver_num} == "1" ]]; then
-		Install_LotServer
-	elif [[ ${lotserver_num} == "2" ]]; then
-		LotServer_installation_status
-		Uninstall_LotServer
-	elif [[ ${lotserver_num} == "3" ]]; then
-		LotServer_installation_status
-		${LotServer_file} start
-		${LotServer_file} status
-	elif [[ ${lotserver_num} == "4" ]]; then
-		LotServer_installation_status
-		${LotServer_file} stop
-	elif [[ ${lotserver_num} == "5" ]]; then
-		LotServer_installation_status
-		${LotServer_file} restart
-		${LotServer_file} status
-	elif [[ ${lotserver_num} == "6" ]]; then
-		LotServer_installation_status
-		${LotServer_file} status
-	else
-		echo -e "${Error} 请输入正确的数字(1-6)" && exit 1
-	fi
-}
-Install_LotServer(){
-	[[ -e ${LotServer_file} ]] && echo -e "${Error} LotServer 已安装 !" && exit 1
-	#Github: https://github.com/0oVicero0/serverSpeeder_Install
-	wget --no-check-certificate -qO /tmp/appex.sh "https://raw.githubusercontent.com/0oVicero0/serverSpeeder_Install/master/appex.sh"
-	[[ ! -e "/tmp/appex.sh" ]] && echo -e "${Error} LotServer 安装脚本下载失败 !" && exit 1
-	bash /tmp/appex.sh 'install'
-	sleep 2s
-	PID=`ps -ef |grep -v grep |grep "appex" |awk '{print $2}'`
-	if [[ ! -z ${PID} ]]; then
-		echo -e "${Info} LotServer 安装完成 !" && exit 1
-	else
-		echo -e "${Error} LotServer 安装失败 !" && exit 1
-	fi
-}
-Uninstall_LotServer(){
-	echo "确定要卸载 LotServer？[y/N]" && echo
-	read -e -p "(默认: n):" unyn
-	[[ -z ${unyn} ]] && echo && echo "已取消..." && exit 1
-	if [[ ${unyn} == [Yy] ]]; then
-		wget --no-check-certificate -qO /tmp/appex.sh "https://raw.githubusercontent.com/0oVicero0/serverSpeeder_Install/master/appex.sh" && bash /tmp/appex.sh 'uninstall'
-		echo && echo "LotServer 卸载完成 !" && echo
-	fi
-}
-# BBR
-Configure_BBR(){
-	echo && echo -e "  你要做什么？
-	
- ${Green_font_prefix}1.${Font_color_suffix} 安装 BBR
-————————
- ${Green_font_prefix}2.${Font_color_suffix} 启动 BBR
- ${Green_font_prefix}3.${Font_color_suffix} 停止 BBR
- ${Green_font_prefix}4.${Font_color_suffix} 查看 BBR 状态" && echo
-echo -e "${Green_font_prefix} [安装前 请注意] ${Font_color_suffix}
-1. 安装开启BBR，需要更换内核，存在更换失败等风险(重启后无法开机)
-2. 本脚本仅支持 Debian / Ubuntu 系统更换内核，OpenVZ和Docker 不支持更换内核
-3. Debian 更换内核过程中会提示 [ 是否终止卸载内核 ] ，请选择 ${Green_font_prefix} NO ${Font_color_suffix}" && echo
-	read -e -p "(默认: 取消):" bbr_num
-	[[ -z "${bbr_num}" ]] && echo "已取消..." && exit 1
-	if [[ ${bbr_num} == "1" ]]; then
-		Install_BBR
-	elif [[ ${bbr_num} == "2" ]]; then
-		Start_BBR
-	elif [[ ${bbr_num} == "3" ]]; then
-		Stop_BBR
-	elif [[ ${bbr_num} == "4" ]]; then
-		Status_BBR
-	else
-		echo -e "${Error} 请输入正确的数字(1-4)" && exit 1
-	fi
-}
-Install_BBR(){
-	[[ ${release} = "centos" ]] && echo -e "${Error} 本脚本不支持 CentOS系统安装 BBR !" && exit 1
-	BBR_installation_status
-	bash "${BBR_file}"
-}
-Start_BBR(){
-	BBR_installation_status
-	bash "${BBR_file}" start
-}
-Stop_BBR(){
-	BBR_installation_status
-	bash "${BBR_file}" stop
-}
-Status_BBR(){
-	BBR_installation_status
-	bash "${BBR_file}" status
-}
+
 # 其他功能
 Other_functions(){
 	echo && echo -e "  你要做什么？
-	
-  ${Green_font_prefix}1.${Font_color_suffix} 配置 BBR
-  ${Green_font_prefix}2.${Font_color_suffix} 配置 锐速(ServerSpeeder)
-  ${Green_font_prefix}3.${Font_color_suffix} 配置 LotServer(锐速母公司)
-  ${Tip} 锐速/LotServer/BBR 不支持 OpenVZ！
-  ${Tip} 锐速和LotServer不能共存！
-————————————
-  ${Green_font_prefix}4.${Font_color_suffix} 一键封禁 BT/PT/SPAM (iptables)
-  ${Green_font_prefix}5.${Font_color_suffix} 一键解封 BT/PT/SPAM (iptables)
-————————————
-  ${Green_font_prefix}6.${Font_color_suffix} 切换 ShadowsocksR日志输出模式
+  ${Green_font_prefix}1.${Font_color_suffix} 定时重启 ShadowsocksR	
+————————————	
+  ${Green_font_prefix}2.${Font_color_suffix} 切换 ShadowsocksR日志输出模式
   —— 说明：SSR默认只输出错误日志，此项可切换为输出详细的访问日志。
-  ${Green_font_prefix}7.${Font_color_suffix} 监控 ShadowsocksR服务端运行状态
+  ${Green_font_prefix}3.${Font_color_suffix} 监控 ShadowsocksR服务端运行状态
   —— 说明：该功能适合于SSR服务端经常进程结束，启动该功能后会每分钟检测一次，当进程不存在则自动启动SSR服务端。" && echo
 	read -e -p "(默认: 取消):" other_num
 	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
 	if [[ ${other_num} == "1" ]]; then
-		Configure_BBR
+		Set_crontab_restart_ssr
 	elif [[ ${other_num} == "2" ]]; then
-		Configure_Server_Speeder
-	elif [[ ${other_num} == "3" ]]; then
-		Configure_LotServer
-	elif [[ ${other_num} == "4" ]]; then
-		BanBTPTSPAM
-	elif [[ ${other_num} == "5" ]]; then
-		UnBanBTPTSPAM
-	elif [[ ${other_num} == "6" ]]; then
 		Set_config_connect_verbose_info
-	elif [[ ${other_num} == "7" ]]; then
+	elif [[ ${other_num} == "3" ]]; then
 		Set_crontab_monitor_ssr
 	else
-		echo -e "${Error} 请输入正确的数字 [1-7]" && exit 1
+		echo -e "${Error} 请输入正确的数字 [1-3]" && exit 1
 	fi
 }
-# 封禁 BT PT SPAM
-BanBTPTSPAM(){
-	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubiBackup/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh banall
-	rm -rf ban_iptables.sh
+
+#------------------------SSR定时重启开始
+#自动化SSR重启
+crontab_restart_ssr(){
+    echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR定时重启脚本开始运行" | tee -a ${ssr_log_file}
+	SSR_installation_status
+	check_pid
+	if [[ -z ${PID} ]]; then
+		echo -e "Error [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 检测到 ShadowsocksR服务端 未运行 , 开始启动..." | tee -a ${ssr_log_file}
+		/etc/init.d/ssrmu start
+		sleep 5s
+		check_pid
+		if [[ -z ${PID} ]]; then
+			echo -e "Error [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端 启动失败..." | tee -a ${ssr_log_file} && exit 1
+		else
+			echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端 启动成功..." | tee -a ${ssr_log_file} && exit 1
+		fi
+	else
+        /etc/init.d/ssrmu stop
+        check_pid
+		if [[ -z ${PID} ]]; then        
+		    echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR服务端停止运行 成功..." | tee -a ${ssr_log_file} 
+            /etc/init.d/ssrmu start
+            sleep 5s
+		    check_pid
+            if [[ -z ${PID} ]]; then
+                echo -e "Error [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR停止后启动失败..." | tee -a ${ssr_log_file} && exit 1
+            else
+                echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] ShadowsocksR定时重启完毕..." | tee -a ${ssr_log_file} && exit 1
+            fi    
+        else
+            echo -e "Info [$(date "+%Y-%m-%d %H:%M:%S %u %Z")] 服务端停止失败，ShadowsocksR定时重启失败..." | tee -a ${ssr_log_file} && exit 1
+        fi
+	fi
 }
-# 解封 BT PT SPAM
-UnBanBTPTSPAM(){
-	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubiBackup/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh unbanall
-	rm -rf ban_iptables.sh
+
+#设置
+Set_crontab_restart_ssr(){
+	SSR_installation_status
+    echo && echo -e "设置后，每天凌晨5点重启ShadowsocksR " 
+	crontab_restart_ssr_a=$(crontab -l|grep "ssrmu.sh restart_ssr")
+	if [[ -z "${crontab_restart_ssr_a}" ]]; then
+		echo && echo -e "ShadowsocksR定时重启: ${Green_font_prefix}未开启${Font_color_suffix}" && echo
+		echo -e "确定要开启 ${Green_font_prefix}ShadowsocksR服务端定时重启${Font_color_suffix} 功能吗？(定时重启服务端，防止内存泄漏)[Y/n]"
+		stty erase '^H' && read -p "(默认: y):" crontab_restart_ssr_ny
+		[[ -z "${crontab_restart_ssr_ny}" ]] && crontab_restart_ssr_ny="y"
+		if [[ ${crontab_restart_ssr_ny} == [Yy] ]]; then
+			crontab_restart_ssr_cron_start
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	else
+		echo && echo -e "ShadowsocksR定时重启: ${Green_font_prefix}已开启${Font_color_suffix}" && echo
+		echo -e "确定要关闭 ${Green_font_prefix}ShadowsocksR服务端定时重启${Font_color_suffix} 功能吗？(定时重启服务端，防止内存泄漏)[y/N]"
+		stty erase '^H' && read -p "(默认: n):" crontab_restart_ssr_ny
+		[[ -z "${crontab_restart_ssr_ny}" ]] && crontab_restart_ssr_ny="n"
+		if [[ ${crontab_restart_ssr_ny} == [Yy] ]]; then
+			crontab_restart_ssr_cron_stop
+		else
+			echo && echo "	已取消..." && echo
+		fi
+	fi
 }
+#开启SSR定时重启
+crontab_restart_ssr_cron_start(){
+	crontab -l > "$file/crontab.bak"
+	sed -i "/ssrmu.sh restart_ssr/d" "$file/crontab.bak"  #删除ssrmu.sh restart_ssr这一行
+	echo -e "\n0 5 * * * /bin/bash $file/ssrmu.sh restart_ssr" >> "$file/crontab.bak"
+	crontab "$file/crontab.bak"
+	rm -r "$file/crontab.bak"
+	cron_config=$(crontab -l | grep "ssrmu.sh restart_ssr")
+	if [[ -z ${cron_config} ]]; then
+		echo -e "${Error} ShadowsocksR服务端定时重启功能 启动失败 !" && exit 1
+	else
+		echo -e "${Info} ShadowsocksR服务端定时重启功能 启动成功 !"
+	fi
+}
+#关闭SSR定时重启
+crontab_restart_ssr_cron_stop(){
+	crontab -l > "$file/crontab.bak"
+	sed -i "/ssrmu.sh restart_ssr/d" "$file/crontab.bak"
+	crontab "$file/crontab.bak"
+	rm -r "$file/crontab.bak"
+	cron_config=$(crontab -l | grep "ssrmu.sh restart_ssr")
+	if [[ ! -z ${cron_config} ]]; then
+		echo -e "${Error} ShadowsocksR服务端定时重启功能 停止失败 !" && exit 1
+	else
+		echo -e "${Info} ShadowsocksR服务端定时重启功能 停止成功 !"
+	fi
+}
+#------------------------SSR定时重启结束
+
+
 Set_config_connect_verbose_info(){
 	SSR_installation_status
 	[[ ! -e ${jq_file} ]] && echo -e "${Error} JQ解析器 不存在，请检查 !" && exit 1
@@ -1748,25 +1644,38 @@ crontab_monitor_ssr_cron_stop(){
 		echo -e "${Info} ShadowsocksR服务端运行状态监控功能 停止成功 !"
 	fi
 }
-Update_Shell(){
-	sh_new_ver=$(wget --no-check-certificate -qO- -t1 -T3 "https://raw.githubusercontent.com/ToyoDAdoubiBackup/doubi/master/ssrmu.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
-	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 无法链接到 Github !" && exit 0
-	if [[ -e "/etc/init.d/ssrmu" ]]; then
-		rm -rf /etc/init.d/ssrmu
-		Service_SSR
+#VPS 设置一键脚本
+VPS_tools(){
+	if [[ ! -e ${vps_tools_file} ]]; then
+		echo -e "${Error} 没有发现 VPS 常用功能一键脚本，开始下载..."
+		cd "${file}"
+		if ! wget -N --no-check-certificate https://github.com/Chennhaoo/Shell_Bash/raw/master/vpstools.sh; then
+			echo -e "${Error} VPS 常用功能一键脚本下载失败 !" && exit 1
+		else
+			echo -e "${Info} VPS 常用功能一键脚本下载完成 !"
+			chmod +x vpstools.sh
+		fi
 	fi
-	cd "${file}"
-	wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubiBackup/doubi/master/ssrmu.sh" && chmod +x ssrmu.sh
-	echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !(注意：因为更新方式为直接覆盖当前运行的脚本，所以可能下面会提示一些报错，无视即可)" && exit 0
+	bash "${vps_tools_file}"
 }
 # 显示 菜单状态
 menu_status(){
 	if [[ -e ${ssr_folder} ]]; then
 		check_pid
 		if [[ ! -z "${PID}" ]]; then
-			echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}"
+			cron_config=$(crontab -l | grep "ssrmu.sh restart_ssr")
+			if [[ ! -z ${cron_config} ]]; then
+				echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}    定时重启${Green_font_prefix} 打开${Font_color_suffix}"
+			else
+				echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}    定时重启${Green_font_prefix} 关闭${Font_color_suffix}"
+			fi
 		else
-			echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 但 ${Red_font_prefix}未启动${Font_color_suffix}"
+			cron_config=$(crontab -l | grep "ssrmu.sh restart_ssr")
+			if [[ ! -z ${cron_config} ]]; then
+				echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 但 ${Red_font_prefix}未启动${Font_color_suffix}    定时重启${Green_font_prefix} 打开${Font_color_suffix}"
+			else
+				echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 但 ${Red_font_prefix}未启动${Font_color_suffix}    定时重启${Green_font_prefix} 关闭${Font_color_suffix}"
+			fi
 		fi
 		cd "${ssr_folder}"
 	else
@@ -1780,9 +1689,11 @@ if [[ "${action}" == "clearall" ]]; then
 	Clear_transfer_all
 elif [[ "${action}" == "monitor" ]]; then
 	crontab_monitor_ssr
+elif [[ "${action}" == "restart_ssr" ]]; then
+	crontab_restart_ssr
 else
-	echo -e "  ShadowsocksR MuJSON一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  ---- Toyo | doub.io/ss-jc60 ----
+	echo -e "  ShadowsocksR 多用户一键管理脚本 ${Red_font_prefix}[${sh_ver}]${Font_color_suffix}
+  ---- Toyo | ChennHaoo ----
 
   ${Green_font_prefix}1.${Font_color_suffix} 安装 ShadowsocksR
   ${Green_font_prefix}2.${Font_color_suffix} 更新 ShadowsocksR
@@ -1801,7 +1712,7 @@ else
  ${Green_font_prefix}13.${Font_color_suffix} 查看 ShadowsocksR 日志
 ————————————
  ${Green_font_prefix}14.${Font_color_suffix} 其他功能
- ${Green_font_prefix}15.${Font_color_suffix} 升级脚本
+ ${Green_font_prefix}15.${Font_color_suffix} VPS 设置一键脚本
  "
 	menu_status
 	echo && read -e -p "请输入数字 [1-15]：" num
@@ -1849,7 +1760,7 @@ case "$num" in
 	Other_functions
 	;;
 	15)
-	Update_Shell
+	VPS_tools
 	;;
 	*)
 	echo -e "${Error} 请输入正确的数字 [1-15]"
