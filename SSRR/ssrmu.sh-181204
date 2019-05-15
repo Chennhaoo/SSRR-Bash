@@ -5,12 +5,12 @@ export PATH
 #=================================================
 #	System Required: CentOS 6+/Debian 6+/Ubuntu 14.04+
 #	Description: Install the ShadowsocksR mudbjson server
-#	Version: 1.0.25
+#	Version: 1.0.26
 #	Author: Toyo
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="1.0.25"
+sh_ver="1.0.26"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -73,7 +73,7 @@ BBR_installation_status(){
 	if [[ ! -e ${BBR_file} ]]; then
 		echo -e "${Error} 没有发现 BBR脚本，开始下载..."
 		cd "${file}"
-		if ! wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/bbr.sh; then
+		if ! wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/bbr.sh; then
 			echo -e "${Error} BBR 脚本下载失败 !" && exit 1
 		else
 			echo -e "${Info} BBR 脚本下载完成 !"
@@ -354,7 +354,7 @@ View_User_info(){
 	echo -e " I  P\t    : ${Green_font_prefix}${ip}${Font_color_suffix}"
 	echo -e " 端口\t    : ${Green_font_prefix}${port}${Font_color_suffix}"
 	echo -e " 密码\t    : ${Green_font_prefix}${password}${Font_color_suffix}"
-	echo -e " 加密\t    : ${Red_font_prefix}${method}${Font_color_suffix}"
+	echo -e " 加密\t    : ${Green_font_prefix}${method}${Font_color_suffix}"
 	echo -e " 协议\t    : ${Red_font_prefix}${protocol}${Font_color_suffix}"
 	echo -e " 混淆\t    : ${Red_font_prefix}${obfs}${Font_color_suffix}"
 	echo -e " 设备数限制 : ${Green_font_prefix}${protocol_param}${Font_color_suffix}"
@@ -383,8 +383,8 @@ Set_config_port(){
 	while true
 	do
 	echo -e "请输入要设置的用户 端口(请勿重复, 用于区分)"
-	stty erase '^H' && read -p "(默认: 9300):" ssr_port
-	[[ -z "$ssr_port" ]] && ssr_port="9300"
+	stty erase '^H' && read -p "(默认: 2333):" ssr_port
+	[[ -z "$ssr_port" ]] && ssr_port="2333"
 	expr ${ssr_port} + 0 &>/dev/null
 	if [[ $? == 0 ]]; then
 		if [[ ${ssr_port} -ge 1 ]] && [[ ${ssr_port} -le 65535 ]]; then
@@ -406,6 +406,7 @@ Set_config_password(){
 }
 Set_config_method(){
 	echo -e "请选择要设置的用户 加密方式
+	
  ${Green_font_prefix} 1.${Font_color_suffix} none
  ${Tip} 如果使用 auth_chain_* 系列协议，建议加密方式选择 none (该系列协议自带 RC4 加密)，混淆随意
  
@@ -421,15 +422,19 @@ Set_config_method(){
  ${Green_font_prefix} 9.${Font_color_suffix} aes-192-cfb
  ${Green_font_prefix}10.${Font_color_suffix} aes-256-cfb
  
- ${Green_font_prefix}11.${Red_font_prefix} salsa20
- ${Green_font_prefix}12.${Red_font_prefix} chacha20
- ${Green_font_prefix}13.${Red_font_prefix} chacha20-ietf
+ ${Green_font_prefix}11.${Font_color_suffix} aes-128-cfb8
+ ${Green_font_prefix}12.${Font_color_suffix} aes-192-cfb8
+ ${Green_font_prefix}13.${Font_color_suffix} aes-256-cfb8
  
- ${Green_font_prefix}14.${Red_font_prefix} xsalsa20
- ${Green_font_prefix}15.${Red_font_prefix} xchacha20
- ${Tip} salsa20/chacha20-* 系列加密方式，需要额外安装依赖 libsodium ，否则会无法启动ShadowsocksRR !" && echo
-	stty erase '^H' && read -p "(默认: 15. xchacha20 需安装libsodium):" ssr_method
-	[[ -z "${ssr_method}" ]] && ssr_method="15"
+ ${Green_font_prefix}14.${Font_color_suffix} salsa20
+ ${Green_font_prefix}15.${Font_color_suffix} chacha20
+ ${Green_font_prefix}16.${Font_color_suffix} chacha20-ietf
+
+ ${Green_font_prefix}17.${Font_color_suffix} xsalsa20
+ ${Green_font_prefix}18.${Font_color_suffix} xchacha20
+ ${Tip} salsa20/chacha20-*系列加密方式，需要额外安装依赖 libsodium ，否则会无法启动ShadowsocksR !" && echo
+	stty erase '^H' && read -p "(默认: 5. aes-128-ctr):" ssr_method
+	[[ -z "${ssr_method}" ]] && ssr_method="5"
 	if [[ ${ssr_method} == "1" ]]; then
 		ssr_method="none"
 	elif [[ ${ssr_method} == "2" ]]; then
@@ -451,29 +456,36 @@ Set_config_method(){
 	elif [[ ${ssr_method} == "10" ]]; then
 		ssr_method="aes-256-cfb"
 	elif [[ ${ssr_method} == "11" ]]; then
-		ssr_method="salsa20"
+		ssr_method="aes-128-cfb8"
 	elif [[ ${ssr_method} == "12" ]]; then
-		ssr_method="chacha20"
+		ssr_method="aes-192-cfb8"
 	elif [[ ${ssr_method} == "13" ]]; then
-		ssr_method="chacha20-ietf"
+		ssr_method="aes-256-cfb8"
 	elif [[ ${ssr_method} == "14" ]]; then
-		ssr_method="xsalsa20"
+		ssr_method="salsa20"
 	elif [[ ${ssr_method} == "15" ]]; then
-		ssr_method="xchacha20"
+		ssr_method="chacha20"
+	elif [[ ${ssr_method} == "16" ]]; then
+		ssr_method="chacha20-ietf"
+	elif [[ ${ssr_method} == "17" ]]; then
+		ssr_method="xsalsa20"
+	elif [[ ${ssr_method} == "18" ]]; then
+		ssr_method="xchacha20"			
 	else
-		ssr_method="xchacha20"
+		ssr_method="aes-128-ctr"
 	fi
 	echo && echo ${Separator_1} && echo -e "	加密 : ${Green_font_prefix}${ssr_method}${Font_color_suffix}" && echo ${Separator_1} && echo
 }
 Set_config_protocol(){
 	echo -e "请选择要设置的用户 协议插件
+	
  ${Green_font_prefix}1.${Font_color_suffix} origin
  ${Green_font_prefix}2.${Font_color_suffix} auth_sha1_v4
  ${Green_font_prefix}3.${Font_color_suffix} auth_aes128_md5
  ${Green_font_prefix}4.${Font_color_suffix} auth_aes128_sha1
  ${Green_font_prefix}5.${Font_color_suffix} auth_chain_a
  ${Green_font_prefix}6.${Font_color_suffix} auth_chain_b
- 
+
  ${Red_font_prefix}7.${Font_color_suffix} auth_chain_c
  ${Red_font_prefix}8.${Font_color_suffix} auth_chain_d
  ${Red_font_prefix}9.${Font_color_suffix} auth_chain_e
@@ -500,7 +512,7 @@ Set_config_protocol(){
 	elif [[ ${ssr_protocol} == "9" ]]; then
 		ssr_protocol="auth_chain_e"
 	elif [[ ${ssr_protocol} == "10" ]]; then
-		ssr_protocol="auth_chain_f"	
+		ssr_protocol="auth_chain_f"
 	else
 		ssr_protocol="auth_aes128_md5"
 	fi
@@ -516,6 +528,7 @@ Set_config_protocol(){
 }
 Set_config_obfs(){
 	echo -e "请选择要设置的用户 混淆插件
+	
  ${Green_font_prefix}1.${Font_color_suffix} plain
  ${Green_font_prefix}2.${Font_color_suffix} http_simple
  ${Green_font_prefix}3.${Font_color_suffix} http_post
@@ -861,10 +874,14 @@ Debian_apt(){
 Download_SSR(){
 	cd "/usr/local"
 	#wget -N --no-check-certificate "https://github.com/ToyoDAdoubi/shadowsocksr/archive/manyuser.zip"
-	#git config --global http.sslVerify false
 	echo -e "${Info} 准备安装git组件"
-	apt-get install git -y
-	git clone -b akkariiin/master https://github.com/shadowsocksrr/shadowsocksr.git
+	if [[ ${release} = "centos" ]]; then
+		yum –y install git
+	else
+		apt-get install git -y
+	fi
+	git config --global http.sslVerify false
+	env GIT_SSL_NO_VERIFY=true git clone -b akkariiin/master https://github.com/shadowsocksrr/shadowsocksr.git
 	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR服务端 下载失败 !" && exit 1
 	#[[ ! -e "manyuser.zip" ]] && echo -e "${Error} ShadowsocksR服务端 压缩包 下载失败 !" && rm -rf manyuser.zip && exit 1
 	#unzip "manyuser.zip"
@@ -886,14 +903,14 @@ Download_SSR(){
 }
 Service_SSR(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/ssrmu_centos -O /etc/init.d/ssrmu; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/SSR_Sever/ssrmu_centos -O /etc/init.d/ssrmu; then
 			echo -e "${Error} ShadowsocksR服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/ssrmu
 		chkconfig --add ssrmu
 		chkconfig ssrmu on
 	else
-		if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/ssrmu_debian -O /etc/init.d/ssrmu; then
+		if ! wget --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/SSR_Sever/ssrmu_debian -O /etc/init.d/ssrmu; then
 			echo -e "${Error} ShadowsocksR服务 管理脚本下载失败 !" && exit 1
 		fi
 		chmod +x /etc/init.d/ssrmu
@@ -906,11 +923,11 @@ JQ_install(){
 	if [[ ! -e ${jq_file} ]]; then
 		cd "${ssr_folder}"
 		if [[ ${bit} = "x86_64" ]]; then
-			#mv "jq-linux64" "jq"
 			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64" -O ${jq_file}
+			mv "jq-linux64" "jq"
 		else
-			#mv "jq-linux32" "jq"
 			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux32" -O ${jq_file}
+			mv "jq-linux32" "jq"
 		fi
 		[[ ! -e ${jq_file} ]] && echo -e "${Error} JQ解析器 重命名失败，请检查 !" && exit 1
 		chmod +x ${jq_file}
@@ -930,7 +947,7 @@ Installation_dependency(){
 	Check_python
 	#echo "nameserver 8.8.8.8" > /etc/resolv.conf
 	#echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-	cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 	if [[ ${release} == "centos" ]]; then
 		/etc/init.d/crond restart
 	else
@@ -966,11 +983,16 @@ Install_SSR(){
 }
 Update_SSR(){
 	SSR_installation_status
-	echo -e "准备更新"
-	cd ${ssr_folder}
-	git pull
-	Restart_SSR
-	echo -e "更新完毕"
+	echo "建议备份配置文件，确定要升级？[y/N]" && echo
+	stty erase '^H' && read -p "(默认: n):" unyn
+	[[ -z ${unyn} ]] && unyn="n"
+	if [[ ${unyn} == [Yy] ]]; then
+		cd ${ssr_folder}
+		git pull
+		Restart_SSR
+	else
+		echo && echo " 卸载已取消..." && echo
+	fi
 }
 Uninstall_SSR(){
 	[[ ! -e ${ssr_folder} ]] && echo -e "${Error} 没有安装 ShadowsocksR，请检查 !" && exit 1
@@ -988,6 +1010,10 @@ Uninstall_SSR(){
 				port=$(echo "${user_info}"|sed -n "${integer}p"|awk '{print $4}')
 				Del_iptables
 			done
+		fi
+		if [[ ! -z $(crontab -l | grep "ssrmu.sh") ]]; then
+			crontab_monitor_ssr_cron_stop
+			Clear_transfer_all_cron_stop
 		fi
 		if [[ ${release} = "centos" ]]; then
 			chkconfig --del ssrmu
@@ -1371,6 +1397,8 @@ Clear_transfer_one(){
 				echo -e "${Error} 用户已使用流量清零失败 ${Green_font_prefix}[端口: ${Clear_transfer_user_port}]${Font_color_suffix} "
 			else
 				echo -e "${Info} 用户已使用流量清零成功 ${Green_font_prefix}[端口: ${Clear_transfer_user_port}]${Font_color_suffix} "
+				Get_User_info "${Clear_transfer_user_port}"
+				View_User_info
 			fi
 			break
 		else
@@ -1647,11 +1675,11 @@ Other_functions(){
   ${Green_font_prefix}7.${Font_color_suffix} 监控 ShadowsocksR服务端运行状态
   —— 说明：该功能适合于SSR服务端经常进程结束，启动该功能后会每分钟检测一次，当进程不存在则自动启动SSR服务端。
 ————————————
-  ${Green_font_prefix}8.${Font_color_suffix} 修改系统时间
-  ${Green_font_prefix}9.${Font_color_suffix} 更新软件源
+  ${Green_font_prefix}8.${Font_color_suffix} 更新系统软件源
   ${Tip} 仅支持Debian/Ubuntu系统
-————————————  
-  ${Green_font_prefix}10.${Font_color_suffix} 更新软件 （谨慎操作） 
+———————————— 
+  ${Green_font_prefix}9.${Font_color_suffix} 修改系统时间
+  ${Green_font_prefix}10.${Font_color_suffix} 更新系统软件 （谨慎操作） 
   " && echo
 	stty erase '^H' && read -p "(默认: 取消):" other_num
 	[[ -z "${other_num}" ]] && echo "已取消..." && exit 1
@@ -1670,23 +1698,23 @@ Other_functions(){
 	elif [[ ${other_num} == "7" ]]; then
 		Set_crontab_monitor_ssr
 	elif [[ ${other_num} == "8" ]]; then
-		Sys_time		
+		Update_YUAN		
 	elif [[ ${other_num} == "9" ]]; then
-		Update_YUAN	
+		Sys_time	
 	elif [[ ${other_num} == "10" ]]; then
-		Update_SYS		
+		Update_SYS
 	else
 		echo -e "${Error} 请输入正确的数字 [1-10]" && exit 1
 	fi
 }
 # 封禁 BT PT SPAM
 BanBTPTSPAM(){
-	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh banall
+	wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh banall
 	rm -rf ban_iptables.sh
 }
 # 解封 BT PT SPAM
 UnBanBTPTSPAM(){
-	wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh unbanall
+	wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh unbanall
 	rm -rf ban_iptables.sh
 }
 Set_config_connect_verbose_info(){
@@ -1787,7 +1815,7 @@ crontab_monitor_ssr_cron_stop(){
 	fi
 }
 #修改SSH端口
-Install_SSHPOR(){
+Install_SSH(){
 	[[ ${release} = "centos" ]] && echo -e "${Error} 本脚本不支持 CentOS系统 !" && exit 1
 	echo -e "————————
 如果采用 ${Green_font_prefix} [保守修改]${Font_color_suffix} 选项，在修改完后新SSH链接正常 请链接后再次执行命令 ${Green_font_prefix} [bash /root/ssh_port.sh end]${Font_color_suffix} 以删除旧端口配置！
@@ -1801,7 +1829,7 @@ Install_SSHPOR(){
 		if [[ ! -e ${SSH_file} ]]; then
 			echo -e "${Error} 没有发现 SSH修改端口脚本，开始下载..."
 			cd "${file}"
-			if ! wget -N --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssh_port.sh; then
+			if ! wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/Shell_Bash/master/ssh_port.sh; then
 				echo -e "${Error} SSH 修改端口脚本下载失败 !" && exit 1
 			else
 				echo -e "${Info} SSH 修改端口脚本下载完成 !"
@@ -1814,9 +1842,17 @@ Install_SSHPOR(){
 }
 #修改系统时间
 Sys_time(){
-    [[ ${release} = "centos" ]] && echo -e "${Error} 此命令只支持Debian/Ubuntu !" && exit 1
+    #[[ ${release} = "centos" ]] && echo -e "${Error} 此命令只支持Debian/Ubuntu !" && exit 1
 	echo -e "${Info} 开始修改系统时间...."
-	dpkg-reconfigure tzdata
+	if [[ ${release} = "centos" ]]; then
+		yum –y install ntpdate
+		tzselect
+		ntpdate cn.pool.ntp.org
+	else
+		dpkg-reconfigure tzdata
+		apt-get install ntpdate -y
+		ntpdate cn.pool.ntp.org
+	fi
 	echo -e "${Info} 系统时间修改完毕，请使用 date 命令查看！"
 }
 #更新软件源
@@ -1868,13 +1904,14 @@ if [[ "${action}" == "clearall" ]]; then
 elif [[ "${action}" == "monitor" ]]; then
 	crontab_monitor_ssr
 else
-	echo -e "  ShadowsocksRR MuJSON后端一键管理脚本 ${Green_font_prefix}[MOD_${sh_ver}]${Font_color_suffix}
-  ---- GitHub@ChennHaoo  GitHub@hybtoy  GitHub@ToyoDAdoubi ----
+	echo -e "  ShadowsocksRR MuJSON后端一键管理脚本 ${Green_font_prefix}[MOD_${sh_ver} 181204]${Font_color_suffix} 
+  ---- GitHub@ChennHaoo @hybtoy @ToyoDAdoubi @YihanH ----
+  ${Tip} 安装位置：/usr/local/shadowsocksr
 
-  ${Green_font_prefix}1.${Font_color_suffix} 安装 libsodium(chacha20 xchacha20)
-  ${Green_font_prefix}2.${Font_color_suffix} 安装 ShadowsocksRR
-  ${Green_font_prefix}3.${Font_color_suffix} 更新 ShadowsocksRR
-  ${Green_font_prefix}4.${Font_color_suffix} 卸载 ShadowsocksRR
+  ${Green_font_prefix}1.${Font_color_suffix} 安装 ShadowsocksR
+  ${Green_font_prefix}2.${Font_color_suffix} 更新 ShadowsocksR
+  ${Green_font_prefix}3.${Font_color_suffix} 卸载 ShadowsocksR
+  ${Green_font_prefix}4.${Font_color_suffix} 安装 libsodium(chacha20)
 ————————————
   ${Green_font_prefix}5.${Font_color_suffix} 查看 账号信息
   ${Green_font_prefix}6.${Font_color_suffix} 显示 连接信息
@@ -1882,28 +1919,28 @@ else
   ${Green_font_prefix}8.${Font_color_suffix} 手动 修改配置
   ${Green_font_prefix}9.${Font_color_suffix} 配置 流量清零
 ————————————
- ${Green_font_prefix}10.${Font_color_suffix} 启动 ShadowsocksRR
- ${Green_font_prefix}11.${Font_color_suffix} 停止 ShadowsocksRR
- ${Green_font_prefix}12.${Font_color_suffix} 重启 ShadowsocksRR
- ${Green_font_prefix}13.${Font_color_suffix} 查看 ShadowsocksRR 日志
+ ${Green_font_prefix}10.${Font_color_suffix} 启动 ShadowsocksR
+ ${Green_font_prefix}11.${Font_color_suffix} 停止 ShadowsocksR
+ ${Green_font_prefix}12.${Font_color_suffix} 重启 ShadowsocksR
+ ${Green_font_prefix}13.${Font_color_suffix} 查看 ShadowsocksR 日志
 ————————————
- ${Green_font_prefix}14.${Font_color_suffix} 修改SSH端口 （如有BT面板，不建议在此修改）
+ ${Green_font_prefix}14.${Font_color_suffix} 修改SSH端口 （如有宝塔面板，不建议在此修改）
  ${Green_font_prefix}15.${Font_color_suffix} 其他功能
  "
 	menu_status
 	echo && stty erase '^H' && read -p "请输入数字 [1-15]：" num
 case "$num" in
 	1)
-	Install_Libsodium
-	;;
-	2)
 	Install_SSR
 	;;
-	3)
+	2)
 	Update_SSR
 	;;
-	4)
+	3)
 	Uninstall_SSR
+	;;
+	4)
+	Install_Libsodium
 	;;
 	5)
 	View_User
@@ -1933,11 +1970,11 @@ case "$num" in
 	View_Log
 	;;
 	14)
-	Install_SSHPOR
+	Install_SSH
 	;;
 	15)
 	Other_functions
-	;;	
+	;;
 	*)
 	echo -e "${Error} 请输入正确的数字 [1-15]"
 	;;
