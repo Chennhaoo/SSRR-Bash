@@ -8,7 +8,7 @@
 后端引用：<br>
  `https://github.com/NimaQu/shadowsocks`
 
-本项目压缩包版本：2018-8-5<br>
+本项目压缩包版本：2019-4-12<br>
 
 使用方法：<br>
 `wget -N --no-check-certificate https://raw.githubusercontent.com/Chennhaoo/SSRR-Bash/master/Panel/SS-Panel/ssrpa.sh && chmod +x ssrpa.sh && bash ssrpa.sh`
