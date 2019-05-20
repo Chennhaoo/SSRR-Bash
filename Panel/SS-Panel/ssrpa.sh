@@ -164,9 +164,9 @@ JQ_install(){
 	if [[ ! -e ${jq_file} ]]; then
 		cd "${ssr_folder}"
 		if [[ ${bit} = "x86_64" ]]; then
-			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" -O ${jq_file}
+			mv "jq-linux64" "jq"
 		else
-			wget --no-check-certificate "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux32" -O ${jq_file}
+			mv "jq-linux32" "jq"
 		fi
 		[[ ! -e ${jq_file} ]] && echo -e "${Error} JQ解析器 重命名失败，请检查 !" && exit 1
 		chmod +x ${jq_file}
@@ -207,7 +207,9 @@ Cymysql_install(){
 }
 #------------------------------------------配套软件 结束
 
+#------------------------------------------ShadowsocksR 开始
 
+#------------------------------------------ShadowsocksR 结束
 
 
 
