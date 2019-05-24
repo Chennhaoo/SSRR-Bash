@@ -10,7 +10,7 @@ export PATH
 #	Blog: https://doub.io/ss-jc60/
 #=================================================
 
-sh_ver="MOD_1.0.26 190524-1"
+sh_ver="MOD_1.0.26 190524-2"
 filepath=$(cd "$(dirname "$0")"; pwd)
 file=$(echo -e "${filepath}"|awk -F "$0" '{print $1}')
 ssr_folder="/usr/local/shadowsocksr"
@@ -1665,14 +1665,14 @@ menu_status(){
 		if [[ ! -z "${PID}" ]]; then
 			cron_config=$(crontab -l | grep "ssrmu.sh restart_ssr")
 			if [[ ! -z ${cron_config} ]]; then
-				echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}    定时重启${Green_font_prefix} 打开${Font_color_suffix}"
+				echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}    定时重启${Red_font_prefix} 打开${Font_color_suffix}"
 			else
 				echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 并 ${Green_font_prefix}已启动${Font_color_suffix}    定时重启${Green_font_prefix} 关闭${Font_color_suffix}"
 			fi
 		else
 			cron_config=$(crontab -l | grep "ssrmu.sh restart_ssr")
 			if [[ ! -z ${cron_config} ]]; then
-				echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 但 ${Red_font_prefix}未启动${Font_color_suffix}    定时重启${Green_font_prefix} 打开${Font_color_suffix}"
+				echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 但 ${Red_font_prefix}未启动${Font_color_suffix}    定时重启${Red_font_prefix} 打开${Font_color_suffix}"
 			else
 				echo -e " 当前状态: ${Green_font_prefix}已安装${Font_color_suffix} 但 ${Red_font_prefix}未启动${Font_color_suffix}    定时重启${Green_font_prefix} 关闭${Font_color_suffix}"
 			fi
